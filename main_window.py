@@ -100,6 +100,7 @@ class MainWindow(QMainWindow):
         self.ribbon.btn_repair.clicked.connect(self._on_repair_archive)
         self.ribbon.btn_recover_pw.clicked.connect(self._on_recover_password)
         self.ribbon.btn_find.clicked.connect(self._on_find_files)
+        self.ribbon.btn_default_app.clicked.connect(self._on_open_default_apps_settings)
 
         # 4. View Tab Connections
         self.ribbon.btn_toggle_start.clicked.connect(self._on_toggle_start_view)
@@ -586,6 +587,21 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentIndex(1)
         self.archive_view.search_box.setFocus()
         self.archive_view.search_box.selectAll()
+
+    def _on_open_default_apps_settings(self):
+        reply = QMessageBox.question(
+            self,
+            "기본 압축 프로그램 설정",
+            "Windows 설정의 [기본 앱] 화면을 열어 AuraZip을 기본 압축 파일(ZIP, 7Z 등) 프로그램으로 지정할 수 있습니다.\n\n"
+            "지금 Windows 기본 앱 설정 창을 여시겠습니까?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+        if reply == QMessageBox.Yes:
+            try:
+                subprocess.Popen(["cmd", "/c", "start", "ms-settings:defaultapps"])
+            except Exception as e:
+                QMessageBox.warning(self, "오류", f"설정 창을 열지 못했습니다: {e}")
 
     def _on_toggle_start_view(self):
         cur = self.stack.currentIndex()

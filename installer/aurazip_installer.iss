@@ -30,6 +30,7 @@ PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
 CloseApplications=yes
 RestartApplications=yes
+ChangesAssociations=yes
 
 [Languages]
 Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
@@ -37,6 +38,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
+Name: "associate_zip"; Description: "ZIP 파일(.zip)을 AuraZip 기본 프로그램으로 연결"; GroupDescription: "파일 확장자 연결:"; Flags: checkedonce
+Name: "associate_7z"; Description: "7Z 파일(.7z)을 AuraZip 기본 프로그램으로 연결"; GroupDescription: "파일 확장자 연결:"; Flags: checkedonce
 
 [Files]
 Source: "..\dist\AuraZip\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -44,6 +47,29 @@ Source: "..\dist\AuraZip\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdi
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\app_icon.ico"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\app_icon.ico"; Tasks: desktopicon
+
+[Registry]
+; .zip 파일 연결 설정
+Root: HKA; Subkey: "Software\Classes\.zip"; ValueType: string; ValueName: ""; ValueData: "AuraZip.zip"; Flags: uninsdeletevalue; Tasks: associate_zip
+Root: HKA; Subkey: "Software\Classes\.zip\OpenWithProgids"; ValueType: string; ValueName: "AuraZip.zip"; ValueData: ""; Flags: uninsdeletevalue; Tasks: associate_zip
+Root: HKA; Subkey: "Software\Classes\AuraZip.zip"; ValueType: string; ValueName: ""; ValueData: "AuraZip ZIP 아카이브"; Flags: uninsdeletekey; Tasks: associate_zip
+Root: HKA; Subkey: "Software\Classes\AuraZip.zip\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\assets\app_icon.ico,0"; Tasks: associate_zip
+Root: HKA; Subkey: "Software\Classes\AuraZip.zip\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: associate_zip
+
+; .7z 파일 연결 설정
+Root: HKA; Subkey: "Software\Classes\.7z"; ValueType: string; ValueName: ""; ValueData: "AuraZip.7z"; Flags: uninsdeletevalue; Tasks: associate_7z
+Root: HKA; Subkey: "Software\Classes\.7z\OpenWithProgids"; ValueType: string; ValueName: "AuraZip.7z"; ValueData: ""; Flags: uninsdeletevalue; Tasks: associate_7z
+Root: HKA; Subkey: "Software\Classes\AuraZip.7z"; ValueType: string; ValueName: ""; ValueData: "AuraZip 7Z 아카이브"; Flags: uninsdeletekey; Tasks: associate_7z
+Root: HKA; Subkey: "Software\Classes\AuraZip.7z\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\assets\app_icon.ico,0"; Tasks: associate_7z
+Root: HKA; Subkey: "Software\Classes\AuraZip.7z\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: associate_7z
+
+; Windows 10 / 11 기본 앱(Default Apps) 등록 지원
+Root: HKA; Subkey: "Software\{#MyAppName}\Capabilities"; ValueType: string; ValueName: "ApplicationDescription"; ValueData: "AuraZip 초고속 통합 압축 관리자"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\{#MyAppName}\Capabilities"; ValueType: string; ValueName: "ApplicationIcon"; ValueData: "{app}\assets\app_icon.ico,0"
+Root: HKA; Subkey: "Software\{#MyAppName}\Capabilities"; ValueType: string; ValueName: "ApplicationName"; ValueData: "{#MyAppName}"
+Root: HKA; Subkey: "Software\{#MyAppName}\Capabilities\FileAssociations"; ValueType: string; ValueName: ".zip"; ValueData: "AuraZip.zip"
+Root: HKA; Subkey: "Software\{#MyAppName}\Capabilities\FileAssociations"; ValueType: string; ValueName: ".7z"; ValueData: "AuraZip.7z"
+Root: HKA; Subkey: "Software\RegisteredApplications"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: "Software\{#MyAppName}\Capabilities"; Flags: uninsdeletevalue
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent

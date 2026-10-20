@@ -290,10 +290,12 @@ class RibbonBar(QFrame):
         grp_repair.add_widget(self.btn_recover_pw)
         layout.addWidget(grp_repair)
 
-        # Group 3: 파일 찾기
-        grp_search = RibbonGroup("탐색", page)
+        # Group 3: 파일 찾기 & 시스템 설정
+        grp_search = RibbonGroup("탐색 & 시스템", page)
         self.btn_find = RibbonButton("파일 찾기\n(Ctrl+F)", "tb_search.png", is_large=True, min_width=84)
+        self.btn_default_app = RibbonButton("기본 앱 설정\n(Default)", "tb_admin.png", is_large=True, min_width=92)
         grp_search.add_widget(self.btn_find)
+        grp_search.add_widget(self.btn_default_app)
         layout.addWidget(grp_search)
 
         self.tabs.addTab(page, "도구 & 보안")
