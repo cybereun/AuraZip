@@ -152,18 +152,15 @@ class StartView(QScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setObjectName("StartScrollArea")
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
         self.setFrameShape(QFrame.NoFrame)
-        self.setStyleSheet("""
-            QScrollArea {
-                border: none;
-                background-color: #F8FAFC;
-            }
-        """)
 
         # Container widget inside scroll area
         self.container = QWidget()
+        self.container.setObjectName("StartContainer")
+        self.container.setAttribute(Qt.WA_StyledBackground, True)
         self.setWidget(self.container)
 
         main_layout = QVBoxLayout(self.container)
@@ -251,13 +248,13 @@ class StartView(QScrollArea):
         for fmt in ["ZIP 64", "7Z Ultra", "TAR", "TGZ", "AES-256"]:
             chip = QLabel(fmt)
             chip.setStyleSheet("""
-                background-color: #F1F5F9;
+                background-color: #EEF2F6;
                 color: #475569;
                 font-size: 10px;
                 font-weight: 700;
                 padding: 2px 7px;
                 border-radius: 5px;
-                border: none;
+                border: 1px solid #E2E8F0;
             """)
             chips_row.addWidget(chip)
 

@@ -361,6 +361,18 @@ QScrollBar::handle:vertical:hover {
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
     height: 0;
 }
+
+/* Ribbon Bar & Boundary Divider */
+QFrame#RibbonBar {
+    background-color: #FFFFFF;
+}
+QFrame#RibbonBottomDivider {
+    background-color: #94A3B8;
+    border: none;
+}
+QScrollArea#StartScrollArea, QWidget#StartContainer {
+    background-color: #F1F5F9;
+}
 """
 
 QSS_THEME = (
@@ -458,6 +470,15 @@ def get_theme_qss(theme_name: str = "Aura Indigo") -> str:
         }}
         QPushButton:hover {{
             background-color: {subtle_bg};
+        }}
+        QFrame#RibbonBar {{
+            background-color: #1E293B;
+        }}
+        QFrame#RibbonBottomDivider {{
+            background-color: #475569;
+        }}
+        QScrollArea#StartScrollArea, QWidget#StartContainer {{
+            background-color: #0F172A;
         }}
         """
     return qss

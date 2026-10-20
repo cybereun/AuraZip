@@ -143,34 +143,46 @@ class RibbonBar(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("RibbonBar")
-        self.setFixedHeight(124)
+        self.setFixedHeight(126)
+        self.setAttribute(Qt.WA_StyledBackground, True)
         self.setStyleSheet("""
             QFrame#RibbonBar {
                 background-color: #FFFFFF;
-                border-bottom: 1.5px solid #E2E8F0;
+            }
+            QTabWidget {
+                background-color: #FFFFFF;
+                border: none;
             }
             QTabWidget::pane {
                 border: none;
                 background-color: #FFFFFF;
-                top: -1px;
+                top: 0px;
+            }
+            QTabBar {
+                background-color: #F1F5F9;
+                border-bottom: 1px solid #CBD5E1;
+                qproperty-drawBase: 0;
             }
             QTabBar::tab {
                 background-color: transparent;
                 color: #64748B;
                 font-size: 12px;
                 font-weight: 700;
-                padding: 6px 16px;
+                padding: 6px 18px;
                 border: none;
-                border-bottom: 2px solid transparent;
+                border-bottom: 2.5px solid transparent;
+                margin-top: 2px;
             }
             QTabBar::tab:hover {
                 color: #4F46E5;
-                background-color: #F8FAFC;
+                background-color: #E2E8F0;
             }
             QTabBar::tab:selected {
                 color: #4F46E5;
-                border-bottom: 2px solid #4F46E5;
+                border-bottom: 2.5px solid #4F46E5;
                 background-color: #FFFFFF;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
             }
         """)
 
@@ -179,7 +191,19 @@ class RibbonBar(QFrame):
         main_layout.setSpacing(0)
 
         self.tabs = QTabWidget()
-        main_layout.addWidget(self.tabs)
+        main_layout.addWidget(self.tabs, 1)
+
+        # 뚜렷하고 고급스러운 하단 경계선 (Border Divider)
+        self.bottom_divider = QFrame()
+        self.bottom_divider.setObjectName("RibbonBottomDivider")
+        self.bottom_divider.setFixedHeight(2)
+        self.bottom_divider.setStyleSheet("""
+            QFrame#RibbonBottomDivider {
+                background-color: #94A3B8;
+                border: none;
+            }
+        """)
+        main_layout.addWidget(self.bottom_divider, 0)
 
         self._build_file_tab()
         self._build_edit_tab()
