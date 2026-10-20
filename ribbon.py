@@ -147,20 +147,20 @@ class RibbonBar(QFrame):
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setStyleSheet("""
             QFrame#RibbonBar {
-                background-color: #FFFFFF;
+                background-color: #F1F5F9;
             }
             QTabWidget {
-                background-color: #FFFFFF;
+                background-color: #F1F5F9;
                 border: none;
             }
             QTabWidget::pane {
                 border: none;
+                border-top: 1px solid #CBD5E1;
                 background-color: #FFFFFF;
-                top: 0px;
+                top: -1px;
             }
             QTabBar {
                 background-color: #F1F5F9;
-                border-bottom: 1px solid #CBD5E1;
                 qproperty-drawBase: 0;
             }
             QTabBar::tab {

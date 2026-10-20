@@ -364,7 +364,7 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
 
 /* Ribbon Bar & Boundary Divider */
 QFrame#RibbonBar {
-    background-color: #FFFFFF;
+    background-color: #F1F5F9;
 }
 QFrame#RibbonBottomDivider {
     background-color: #94A3B8;
