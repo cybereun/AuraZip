@@ -34,7 +34,9 @@ def main():
         sys.exit(1)
 
     iss_file = os.path.join(BASE_DIR, "installer", "aurazip_installer.iss")
-    cmd_iscc = [iscc_path, iss_file]
+    from version import APP_VERSION
+    clean_v = APP_VERSION.lstrip('vV')
+    cmd_iscc = [iscc_path, f"/DMyAppVersion={clean_v}", iss_file]
     
     ret = subprocess.run(cmd_iscc, cwd=os.path.join(BASE_DIR, "installer"))
     if ret.returncode != 0:

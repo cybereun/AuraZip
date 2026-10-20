@@ -25,14 +25,14 @@
 
 ---
 
-## 🚀 최신 릴리즈 다운로드 (v1.0.0)
+## 🚀 최신 릴리즈 다운로드 (v1.0.1)
 
-공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.0](https://github.com/cybereun/AuraZip/releases/tag/v1.0.0)
+공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.1](https://github.com/cybereun/AuraZip/releases/tag/v1.0.1)
 
 | 패키지 형태 | 파일명 | 용량 | 특징 및 권장 사용자 | 다운로드 |
 |---|---|---|---|:---:|
-| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.0.exe` | ~37.2 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.0/AuraZip_Setup_v1.0.0.exe) |
-| **무설치 포터블** | `AuraZip_Portable_v1.0.0.zip` | ~51.6 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.0/AuraZip_Portable_v1.0.0.zip) |
+| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.1.exe` | ~37.3 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.1/AuraZip_Setup_v1.0.1.exe) |
+| **무설치 포터블** | `AuraZip_Portable_v1.0.1.zip` | ~51.6 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.1/AuraZip_Portable_v1.0.1.zip) |
 
 ---
 
@@ -113,6 +113,12 @@ python main.py
 ---
 
 ## 📋 업데이트 내역 (Changelog)
+
+### [v1.0.1] - 2026-10-20
+#### ✨ UI/UX 경계선 고도화 & OTA 자동 업데이트 릴리즈
+- **리본-본문 경계 구분선 추가**: 상단 리본 메뉴 하단에 2px Slate(#94A3B8) 솔리드 구분선을 추가하여 시각적 분리선 형성
+- **작업 캔버스 배경색 분리**: 본문 작업 영역(StartView/ArchiveView)에 부드러운 슬레이트 캔버스(#F1F5F9) 배경을 적용하여 상단 리본(#FFFFFF)과 대조 및 액션 카드 플로팅 효과 극대화
+- **OTA 자동 업데이트 검증**: v1.0.0 버전 사용자가 앱 실행 시 또는 리본 [도움말] -> [업데이트 확인] 클릭 시 새 버전을 즉시 인식하고 원클릭 자동 다운로드 및 설치 재시작 지원
 
 ### [v1.0.0] - 2026-10-20
 #### 🎉 첫 번째 공식 릴리즈 (Initial Official Release)
