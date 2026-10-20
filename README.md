@@ -25,14 +25,14 @@
 
 ---
 
-## 🚀 최신 릴리즈 다운로드 (v1.0.2)
+## 🚀 최신 릴리즈 다운로드 (v1.0.3)
 
-공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.2](https://github.com/cybereun/AuraZip/releases/tag/v1.0.2)
+공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.3](https://github.com/cybereun/AuraZip/releases/tag/v1.0.3)
 
 | 패키지 형태 | 파일명 | 용량 | 특징 및 권장 사용자 | 다운로드 |
 |---|---|---|---|:---:|
-| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.2.exe` | ~37.3 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.2/AuraZip_Setup_v1.0.2.exe) |
-| **무설치 포터블** | `AuraZip_Portable_v1.0.2.zip` | ~51.6 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.2/AuraZip_Portable_v1.0.2.zip) |
+| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.3.exe` | ~37.3 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.3/AuraZip_Setup_v1.0.3.exe) |
+| **무설치 포터블** | `AuraZip_Portable_v1.0.3.zip` | ~51.6 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.3/AuraZip_Portable_v1.0.3.zip) |
 
 ---
 
@@ -113,6 +113,13 @@ python main.py
 ---
 
 ## 📋 업데이트 내역 (Changelog)
+
+### [v1.0.3] - 2026-10-20
+#### 🛡️ Windows 기본 프로그램 아이콘 및 바로가기 속성 오류 완전 해결
+- **탐색기 기본 앱 아이콘 깨짐 현상 해결**: Windows에서 `.zip` 및 `.7z` 파일의 기본 연결 프로그램을 AuraZip으로 설정 시 파일 탐색기에서 흰색 빈 문서로 깨져 나오던 현상을 완벽 수정
+- **설치 패키지 내 아이콘 리소스 배치 정정**: PyInstaller onedir 빌드 특성상 `_internal` 하위에만 존재하던 `assets` 폴더를 `{app}\assets` 루트 경로에도 물리적으로 직접 배포하도록 인스톨러 및 빌드 스크립트 수정 (`app_icon.ico 파일을 찾을 수 없습니다` 오류 완전 해결)
+- **Windows Registry DefaultIcon 규격 표준화**: 레지스트리 `DefaultIcon` 등록 시 `.ico` 단독 파일 경로 규격(`{app}\assets\app_icon.ico`)으로 등록하고, 인스톨러 완료 시 Windows 셸 아이콘 캐시 새로고침 API(`SHChangeNotify`)를 호출하여 재부팅 없이 즉시 선명한 아이콘이 반영되도록 개선
+- **멀티 해상도(16~256px) ICO 완성**: Windows 탐색기 목록 보기, 자세히 보기, 큰 아이콘, 초고해상도 DPI 환경 등 모든 보기 모드에서 선명하게 렌더링되도록 7단계 멀티 레이어 아이콘 번들 탑재
 
 ### [v1.0.2] - 2026-10-20
 #### 🎨 상단 탭 영역 색상 균일화 & 메인 아이콘 투명화 완성

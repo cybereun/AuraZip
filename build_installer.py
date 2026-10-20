@@ -27,6 +27,13 @@ def main():
         print("[ERROR] PyInstaller build failed!")
         sys.exit(ret.returncode)
 
+    print(" -> Deploying assets folder to dist/AuraZip/assets...")
+    assets_src = os.path.join(BASE_DIR, "assets")
+    assets_dst = os.path.join(BASE_DIR, "dist", "AuraZip", "assets")
+    if os.path.exists(assets_src):
+        shutil.copytree(assets_src, assets_dst, dirs_exist_ok=True)
+        print(f" -> Copied assets directly to: {assets_dst}")
+
     print("\n=== [2/2] Compiling Installer with Inno Setup ===")
     iscc_path = find_iscc()
     if not iscc_path:
