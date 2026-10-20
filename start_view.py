@@ -73,21 +73,9 @@ class ActionCard(QFrame):
         self.setFixedSize(192, 142)
         self.setCursor(Qt.PointingHandCursor)
 
-        self.setStyleSheet("""
-            QFrame#ActionCardWidget {
-                background-color: #FFFFFF;
-                border: 1px solid #E2E8F0;
-                border-radius: 14px;
-            }
-            QLabel {
-                border: none;
-                background: transparent;
-            }
-        """)
-
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(14)
-        shadow.setColor(QColor(0, 0, 0, 7))
+        shadow.setColor(QColor(0, 0, 0, 10))
         shadow.setOffset(0, 3)
         self.setGraphicsEffect(shadow)
 
@@ -102,33 +90,62 @@ class ActionCard(QFrame):
         self.icon_btn.clicked.connect(self.clicked.emit)
         layout.addWidget(self.icon_btn, 0, Qt.AlignCenter)
 
-        # 2. Title Label - Static
-        title_lbl = QLabel(title)
-        title_lbl.setStyleSheet("font-size: 13px; font-weight: 700; color: #1E293B; border: none; background: transparent;")
-        title_lbl.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title_lbl)
+        # 2. Title Label
+        self.title_lbl = QLabel(title)
+        self.title_lbl.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.title_lbl)
 
-        # 3. Subtitle Label - Static
-        sub_lbl = QLabel(subtitle)
-        sub_lbl.setStyleSheet("font-size: 11px; color: #64748B; border: none; background: transparent;")
-        sub_lbl.setAlignment(Qt.AlignCenter)
-        sub_lbl.setWordWrap(True)
-        layout.addWidget(sub_lbl)
+        # 3. Subtitle Label
+        self.sub_lbl = QLabel(subtitle)
+        self.sub_lbl.setAlignment(Qt.AlignCenter)
+        self.sub_lbl.setWordWrap(True)
+        layout.addWidget(self.sub_lbl)
 
-        # 4. Optional Badge - Static
+        # 4. Optional Badge
+        self.badge_lbl = None
         if badge:
-            badge_lbl = QLabel(badge)
-            badge_lbl.setStyleSheet("""
-                background-color: #EEF2FF;
-                color: #4F46E5;
+            self.badge_lbl = QLabel(badge)
+            self.badge_lbl.setAlignment(Qt.AlignCenter)
+            layout.addWidget(self.badge_lbl, 0, Qt.AlignCenter)
+
+    def apply_theme(self, theme: dict):
+        self.setStyleSheet(f"""
+            QFrame#ActionCardWidget {{
+                background-color: {theme['bg_card']};
+                border: 1px solid {theme['border_card']};
+                border-radius: 14px;
+            }}
+            QFrame#ActionCardWidget:hover {{
+                border: 1.5px solid {theme['border_card_hover']};
+            }}
+            QLabel {{
+                border: none;
+                background: transparent;
+            }}
+        """)
+        self.title_lbl.setStyleSheet(f"""
+            font-size: 13px;
+            font-weight: 700;
+            color: {theme['text_main']};
+            border: none;
+            background: transparent;
+        """)
+        self.sub_lbl.setStyleSheet(f"""
+            font-size: 11px;
+            color: {theme['text_muted']};
+            border: none;
+            background: transparent;
+        """)
+        if self.badge_lbl:
+            self.badge_lbl.setStyleSheet(f"""
+                background-color: {theme['subtle_bg']};
+                color: {theme['primary']};
                 font-size: 10px;
                 font-weight: 700;
                 border-radius: 5px;
                 padding: 1px 6px;
                 border: none;
             """)
-            badge_lbl.setAlignment(Qt.AlignCenter)
-            layout.addWidget(badge_lbl, 0, Qt.AlignCenter)
 
     def enterEvent(self, event):
         self.icon_btn.zoom_in()
@@ -156,6 +173,7 @@ class StartView(QScrollArea):
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
         self.setFrameShape(QFrame.NoFrame)
+        self.current_theme = None
 
         # Container widget inside scroll area
         self.container = QWidget()
@@ -181,22 +199,13 @@ class StartView(QScrollArea):
             logo_lbl.setPixmap(pix)
         header_layout.addWidget(logo_lbl)
 
-        title_lbl = QLabel("AuraZip")
-        title_lbl.setStyleSheet("""
-            font-size: 22px;
-            font-weight: 800;
-            color: #1E1B4B;
-            letter-spacing: -0.5px;
-            border: none;
-            background: transparent;
-        """)
-        title_lbl.setAlignment(Qt.AlignCenter)
-        header_layout.addWidget(title_lbl)
+        self.title_lbl = QLabel("AuraZip")
+        self.title_lbl.setAlignment(Qt.AlignCenter)
+        header_layout.addWidget(self.title_lbl)
 
-        sub_lbl = QLabel("빠르고 안전한 차세대 고성능 압축 유틸리티")
-        sub_lbl.setStyleSheet("font-size: 12px; color: #64748B; font-weight: 500; border: none; background: transparent;")
-        sub_lbl.setAlignment(Qt.AlignCenter)
-        header_layout.addWidget(sub_lbl)
+        self.sub_lbl = QLabel("빠르고 안전한 차세대 고성능 압축 유틸리티")
+        self.sub_lbl.setAlignment(Qt.AlignCenter)
+        header_layout.addWidget(self.sub_lbl)
 
         main_layout.addLayout(header_layout)
 
@@ -222,43 +231,24 @@ class StartView(QScrollArea):
         # Interactive Drop Zone
         self.drop_box = QFrame()
         self.drop_box.setFixedSize(608, 80)
-        self.drop_box.setStyleSheet("""
-            QFrame {
-                background-color: #FFFFFF;
-                border: 2px dashed #CBD5E1;
-                border-radius: 12px;
-            }
-            QLabel {
-                border: none;
-                background: transparent;
-            }
-        """)
         drop_layout = QVBoxLayout(self.drop_box)
         drop_layout.setAlignment(Qt.AlignCenter)
         drop_layout.setSpacing(4)
         drop_layout.setContentsMargins(8, 8, 8, 8)
 
-        drop_title = QLabel("압축 파일을 여기에 드래그하여 바로 열기")
-        drop_title.setStyleSheet("font-size: 13px; font-weight: 700; color: #334155; border: none; background: transparent;")
-        drop_title.setAlignment(Qt.AlignCenter)
+        self.drop_title = QLabel("압축 파일을 여기에 드래그하여 바로 열기")
+        self.drop_title.setAlignment(Qt.AlignCenter)
 
         chips_row = QHBoxLayout()
         chips_row.setAlignment(Qt.AlignCenter)
         chips_row.setSpacing(6)
+        self.chips = []
         for fmt in ["ZIP 64", "7Z Ultra", "TAR", "TGZ", "AES-256"]:
             chip = QLabel(fmt)
-            chip.setStyleSheet("""
-                background-color: #EEF2F6;
-                color: #475569;
-                font-size: 10px;
-                font-weight: 700;
-                padding: 2px 7px;
-                border-radius: 5px;
-                border: 1px solid #E2E8F0;
-            """)
             chips_row.addWidget(chip)
+            self.chips.append(chip)
 
-        drop_layout.addWidget(drop_title)
+        drop_layout.addWidget(self.drop_title)
         drop_layout.addLayout(chips_row)
         main_layout.addWidget(self.drop_box, 0, Qt.AlignCenter)
 
@@ -269,36 +259,101 @@ class StartView(QScrollArea):
         recent_layout.setContentsMargins(0, 0, 0, 0)
         recent_layout.setSpacing(4)
 
-        recent_title = QLabel("최근 작업한 아카이브")
-        recent_title.setStyleSheet("font-size: 11px; font-weight: 700; color: #475569; border: none; background: transparent;")
-        recent_layout.addWidget(recent_title)
+        self.recent_title = QLabel("최근 작업한 아카이브")
+        recent_layout.addWidget(self.recent_title)
 
         self.recent_list = QListWidget()
-        self.recent_list.setStyleSheet("""
-            QListWidget {
-                background-color: #FFFFFF;
-                border: 1px solid #E2E8F0;
-                border-radius: 8px;
-                padding: 4px;
-            }
-            QListWidget::item {
-                padding: 5px 10px;
-                border-radius: 5px;
-                color: #1E293B;
-                font-weight: 500;
-                font-size: 12px;
-            }
-            QListWidget::item:hover {
-                background-color: #EEF2FF;
-                color: #4F46E5;
-            }
-        """)
         self.recent_list.setMaximumHeight(80)
         self.recent_list.itemClicked.connect(self._on_recent_clicked)
         recent_layout.addWidget(self.recent_list)
 
         main_layout.addWidget(self.recent_frame, 0, Qt.AlignCenter)
         self.recent_frame.hide()
+
+        from theme import get_theme_dict
+        self.apply_theme(get_theme_dict("Aura Indigo"))
+
+    def apply_theme(self, theme: dict):
+        self.current_theme = theme
+        self.container.setStyleSheet(f"""
+            QWidget#StartContainer {{
+                background-color: {theme['bg_canvas']};
+            }}
+        """)
+        self.title_lbl.setStyleSheet(f"""
+            font-size: 22px;
+            font-weight: 800;
+            color: {theme['text_main']};
+            letter-spacing: -0.5px;
+            border: none;
+            background: transparent;
+        """)
+        self.sub_lbl.setStyleSheet(f"""
+            font-size: 12px;
+            color: {theme['text_muted']};
+            font-weight: 500;
+            border: none;
+            background: transparent;
+        """)
+        self.card_open.apply_theme(theme)
+        self.card_create.apply_theme(theme)
+        self.card_secure.apply_theme(theme)
+
+        self.drop_box.setStyleSheet(f"""
+            QFrame {{
+                background-color: {theme['bg_card']};
+                border: 2px dashed {theme['border_card']};
+                border-radius: 12px;
+            }}
+            QLabel {{
+                border: none;
+                background: transparent;
+            }}
+        """)
+        self.drop_title.setStyleSheet(f"""
+            font-size: 13px;
+            font-weight: 700;
+            color: {theme['text_secondary']};
+            border: none;
+            background: transparent;
+        """)
+        for chip in self.chips:
+            chip.setStyleSheet(f"""
+                background-color: {theme['subtle_bg']};
+                color: {theme['text_secondary']};
+                font-size: 10px;
+                font-weight: 700;
+                padding: 2px 7px;
+                border-radius: 5px;
+                border: 1px solid {theme['border_card']};
+            """)
+
+        self.recent_title.setStyleSheet(f"""
+            font-size: 11px;
+            font-weight: 700;
+            color: {theme['text_secondary']};
+            border: none;
+            background: transparent;
+        """)
+        self.recent_list.setStyleSheet(f"""
+            QListWidget {{
+                background-color: {theme['bg_card']};
+                border: 1px solid {theme['border_color']};
+                border-radius: 8px;
+                padding: 4px;
+            }}
+            QListWidget::item {{
+                padding: 5px 10px;
+                border-radius: 5px;
+                color: {theme['text_main']};
+                font-weight: 500;
+                font-size: 12px;
+            }}
+            QListWidget::item:hover {{
+                background-color: {theme['subtle_bg']};
+                color: {theme['primary']};
+            }}
+        """)
 
     def update_recent_files(self, files: list):
         self.recent_list.clear()
@@ -322,29 +377,35 @@ class StartView(QScrollArea):
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
-            self.drop_box.setStyleSheet("""
-                QFrame {
-                    background-color: #EEF2FF;
-                    border: 2px dashed #6366F1;
+            t = self.current_theme
+            bg = t['subtle_bg'] if t else "#EEF2FF"
+            border = t['primary'] if t else "#6366F1"
+            self.drop_box.setStyleSheet(f"""
+                QFrame {{
+                    background-color: {bg};
+                    border: 2px dashed {border};
                     border-radius: 12px;
-                }
-                QLabel {
+                }}
+                QLabel {{
                     border: none;
                     background: transparent;
-                }
+                }}
             """)
 
     def dragLeaveEvent(self, event):
-        self.drop_box.setStyleSheet("""
-            QFrame {
-                background-color: #FFFFFF;
-                border: 2px dashed #CBD5E1;
+        t = self.current_theme
+        bg = t['bg_card'] if t else "#FFFFFF"
+        border = t['border_card'] if t else "#CBD5E1"
+        self.drop_box.setStyleSheet(f"""
+            QFrame {{
+                background-color: {bg};
+                border: 2px dashed {border};
                 border-radius: 12px;
-            }
-            QLabel {
+            }}
+            QLabel {{
                 border: none;
                 background: transparent;
-            }
+            }}
         """)
 
     def dropEvent(self, event):

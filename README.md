@@ -25,14 +25,14 @@
 
 ---
 
-## 🚀 최신 릴리즈 다운로드 (v1.0.3)
+## 🚀 최신 릴리즈 다운로드 (v1.0.4)
 
-공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.3](https://github.com/cybereun/AuraZip/releases/tag/v1.0.3)
+공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.4](https://github.com/cybereun/AuraZip/releases/tag/v1.0.4)
 
 | 패키지 형태 | 파일명 | 용량 | 특징 및 권장 사용자 | 다운로드 |
 |---|---|---|---|:---:|
-| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.3.exe` | ~37.3 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.3/AuraZip_Setup_v1.0.3.exe) |
-| **무설치 포터블** | `AuraZip_Portable_v1.0.3.zip` | ~51.6 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.3/AuraZip_Portable_v1.0.3.zip) |
+| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.4.exe` | ~37.3 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.4/AuraZip_Setup_v1.0.4.exe) |
+| **무설치 포터블** | `AuraZip_Portable_v1.0.4.zip` | ~51.6 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.4/AuraZip_Portable_v1.0.4.zip) |
 
 ---
 
@@ -113,6 +113,17 @@ python main.py
 ---
 
 ## 📋 업데이트 내역 (Changelog)
+
+### [v1.0.4] - 2026-10-20
+#### 🎨 테마 프리셋 엔진 전면 개편 & 콤보박스 체크표시 겹침 오류 완벽 해결
+- **콤보박스 글자/체크마크 겹침 버그 근본 해결**: 테마 선택 대화상자에서 QComboBox 드롭다운 화살표(`down-arrow`)의 Qt 스타일시트 서브컨트롤 의사상태 문법 오류로 인해 텍스트 중앙에 겹쳐 보이던 보라색 체크표시 아이콘을 우측 드롭다운 영역으로 정확히 분리 및 고정
+- **테마 프리셋 4종 전면 동적 연동**:
+  - `Aura Indigo (기본 시그니처)`: 시그니처 인디고 & 클린 슬레이트 모던 룩
+  - `Dark Slate (다크 슬레이트 모드)`: 눈이 편안한 딥 네이비/다크 슬레이트 톤의 올인원 다크 테마 (리본 바, 탭, 액션 카드, 테이블, 뷰어 완벽 다크화)
+  - `Emerald Mint (에메랄드 민트)`: 상쾌하고 싱그러운 에메랄드 그린/민트 테마
+  - `Sunset Coral (선셋 코랄 모드)`: 따뜻하고 세련된 오렌지/선셋 코랄 테마
+- **리본/카드/테이블/뷰 전역 동적 테마 전파**: 인라인 하드코딩 스타일을 전면 제거하고 테마 변경 시 RibbonBar, ActionCard, StartView, ArchiveView, TableWidget, PreviewPanel, StatsBanner에 즉시 반영
+- **테마 설정 영구 보존**: Windows Registry `QSettings` 연동으로 앱을 재시작해도 선택한 테마가 유지되도록 지원
 
 ### [v1.0.3] - 2026-10-20
 #### 🛡️ Windows 기본 프로그램 아이콘 및 바로가기 속성 오류 완전 해결

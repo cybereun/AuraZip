@@ -14,12 +14,12 @@ if sys.platform == "win32":
         pass
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSettings
 from PySide6.QtGui import QIcon
 
 from version import APP_NAME, APP_VERSION
 from main_window import MainWindow
-from theme import QSS_THEME
+from theme import get_theme_qss
 
 
 def main():
@@ -43,8 +43,10 @@ def main():
         if os.path.exists(png_path):
             app.setWindowIcon(QIcon(png_path))
 
-    # Apply Next-Gen QSS Theme
-    app.setStyleSheet(QSS_THEME)
+    # Apply initial theme from persistent settings
+    settings = QSettings("AuraStudios", "AuraZip")
+    saved_theme = settings.value("theme", "Aura Indigo (기본 시그니처)")
+    app.setStyleSheet(get_theme_qss(saved_theme))
 
     # Initial archive from command line if any
     initial_file = None

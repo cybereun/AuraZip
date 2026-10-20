@@ -128,19 +128,12 @@ class ArchiveView(QWidget):
         self.preview_panel = QFrame()
         self.preview_panel.setObjectName("PreviewPanel")
         self.preview_panel.setFixedWidth(290)
-        self.preview_panel.setStyleSheet("""
-            QFrame#PreviewPanel {
-                background-color: #FFFFFF;
-                border-left: 1.5px solid #E2E8F0;
-            }
-        """)
         prev_layout = QVBoxLayout(self.preview_panel)
         prev_layout.setContentsMargins(14, 12, 14, 14)
         prev_layout.setSpacing(10)
 
         prev_header = QHBoxLayout()
-        prev_title = QLabel("🖼️ 이미지 미리보기")
-        prev_title.setStyleSheet("font-size: 13px; font-weight: 700; color: #1E293B;")
+        self.prev_title = QLabel("🖼️ 이미지 미리보기")
         self.close_prev_btn = QPushButton("✕")
         self.close_prev_btn.setFixedSize(22, 22)
         self.close_prev_btn.setCursor(Qt.PointingHandCursor)
@@ -157,33 +150,24 @@ class ArchiveView(QWidget):
             }
         """)
         self.close_prev_btn.clicked.connect(lambda: self.set_preview_visible(False))
-        prev_header.addWidget(prev_title)
+        prev_header.addWidget(self.prev_title)
         prev_header.addStretch()
         prev_header.addWidget(self.close_prev_btn)
         prev_layout.addLayout(prev_header)
 
         # Image Container
         self.img_container = QFrame()
-        self.img_container.setStyleSheet("""
-            QFrame {
-                background-color: #F8FAFC;
-                border: 1.5px dashed #CBD5E1;
-                border-radius: 8px;
-            }
-        """)
         img_box_layout = QVBoxLayout(self.img_container)
         img_box_layout.setContentsMargins(6, 6, 6, 6)
 
         self.preview_img_lbl = QLabel("목록에서 이미지를\n클릭하면 즉시 표시됩니다.")
         self.preview_img_lbl.setAlignment(Qt.AlignCenter)
         self.preview_img_lbl.setWordWrap(True)
-        self.preview_img_lbl.setStyleSheet("color: #94A3B8; font-size: 12px; border: none; background: transparent;")
         img_box_layout.addWidget(self.preview_img_lbl)
         prev_layout.addWidget(self.img_container, 1)
 
         # Image Info Details
         self.img_info_lbl = QLabel("")
-        self.img_info_lbl.setStyleSheet("color: #475569; font-size: 11px; line-height: 1.5; border: none; background: transparent;")
         self.img_info_lbl.setWordWrap(True)
         prev_layout.addWidget(self.img_info_lbl)
 
@@ -192,6 +176,44 @@ class ArchiveView(QWidget):
         self.main_splitter.setStretchFactor(1, 0)
 
         layout.addWidget(self.main_splitter, 1)
+
+        from theme import get_theme_dict
+        self.apply_theme(get_theme_dict("Aura Indigo"))
+
+    def apply_theme(self, theme: dict):
+        self.preview_panel.setStyleSheet(f"""
+            QFrame#PreviewPanel {{
+                background-color: {theme['bg_card']};
+                border-left: 1.5px solid {theme['border_color']};
+            }}
+        """)
+        self.prev_title.setStyleSheet(f"""
+            font-size: 13px;
+            font-weight: 700;
+            color: {theme['text_main']};
+            border: none;
+            background: transparent;
+        """)
+        self.img_container.setStyleSheet(f"""
+            QFrame {{
+                background-color: {theme['bg_window']};
+                border: 1.5px dashed {theme['border_color']};
+                border-radius: 8px;
+            }}
+        """)
+        self.preview_img_lbl.setStyleSheet(f"""
+            color: {theme['text_muted']};
+            font-size: 12px;
+            border: none;
+            background: transparent;
+        """)
+        self.img_info_lbl.setStyleSheet(f"""
+            color: {theme['text_secondary']};
+            font-size: 11px;
+            line-height: 1.5;
+            border: none;
+            background: transparent;
+        """)
 
     def set_preview_visible(self, visible: bool):
         self.preview_panel.setVisible(visible)

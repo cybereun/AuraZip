@@ -5,12 +5,14 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon, QAction, QColor, QFont, QFontMetrics
+from theme import get_theme_dict
 
 
 class RibbonButton(QToolButton):
     def __init__(self, text: str, icon_name: str, is_large: bool = True, min_width: int = 0, parent=None):
         super().__init__(parent)
         self.setText(text)
+        self.is_large = is_large
         self.setCursor(Qt.PointingHandCursor)
         self.asset_dir = os.path.join(os.path.dirname(__file__), "assets")
         
@@ -30,61 +32,66 @@ class RibbonButton(QToolButton):
             
             lines = text.split("\n")
             max_line_width = max(fm.horizontalAdvance(l.strip()) for l in lines) if lines else 50
-            # 텍스트 좌우 여백 및 패딩 24px 부여 (최소 68px 이상)
             calc_width = max(68, max_line_width + 24)
             btn_width = max(calc_width, min_width)
             
             self.setFixedSize(btn_width, 70)
-            self.setStyleSheet("""
-                QToolButton {
+        else:
+            self.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            self.setIconSize(QSize(18, 18))
+            self.setFixedHeight(22)
+
+        self.apply_theme(get_theme_dict("Aura Indigo"))
+
+    def apply_theme(self, theme: dict):
+        if self.is_large:
+            self.setStyleSheet(f"""
+                QToolButton {{
                     background-color: transparent;
                     border: 1px solid transparent;
                     border-radius: 8px;
                     font-family: 'Malgun Gothic', 'Segoe UI', sans-serif;
                     font-size: 11px;
                     font-weight: 600;
-                    color: #334155;
+                    color: {theme['text_secondary']};
                     padding: 3px 2px;
                     text-align: center;
-                }
-                QToolButton:hover {
-                    background-color: #EEF2FF;
-                    border-color: #C7D2FE;
-                    color: #4F46E5;
-                }
-                QToolButton:pressed {
-                    background-color: #E0E7FF;
-                }
-                QToolButton:disabled {
-                    color: #CBD5E1;
-                }
+                }}
+                QToolButton:hover {{
+                    background-color: {theme['btn_hover']};
+                    border: 1px solid {theme['btn_hover_border']};
+                    color: {theme['primary']};
+                }}
+                QToolButton:pressed {{
+                    background-color: {theme['btn_pressed']};
+                }}
+                QToolButton:disabled {{
+                    color: {'#475569' if theme['is_dark'] else '#CBD5E1'};
+                }}
             """)
         else:
-            self.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-            self.setIconSize(QSize(18, 18))
-            self.setFixedHeight(22)
-            self.setStyleSheet("""
-                QToolButton {
+            self.setStyleSheet(f"""
+                QToolButton {{
                     background-color: transparent;
                     border: 1px solid transparent;
                     border-radius: 4px;
                     font-size: 11px;
                     font-weight: 500;
-                    color: #334155;
+                    color: {theme['text_secondary']};
                     padding: 2px 6px;
                     text-align: left;
-                }
-                QToolButton:hover {
-                    background-color: #EEF2FF;
-                    border-color: #C7D2FE;
-                    color: #4F46E5;
-                }
-                QToolButton:pressed {
-                    background-color: #E0E7FF;
-                }
-                QToolButton:disabled {
-                    color: #CBD5E1;
-                }
+                }}
+                QToolButton:hover {{
+                    background-color: {theme['btn_hover']};
+                    border: 1px solid {theme['btn_hover_border']};
+                    color: {theme['primary']};
+                }}
+                QToolButton:pressed {{
+                    background-color: {theme['btn_pressed']};
+                }}
+                QToolButton:disabled {{
+                    color: {'#475569' if theme['is_dark'] else '#CBD5E1'};
+                }}
             """)
 
 
@@ -92,23 +99,6 @@ class RibbonGroup(QFrame):
     def __init__(self, title: str, parent=None):
         super().__init__(parent)
         self.setObjectName("RibbonGroupFrame")
-        self.setStyleSheet("""
-            QFrame#RibbonGroupFrame {
-                background-color: transparent;
-                border-right: 1px solid #E2E8F0;
-                margin-right: 4px;
-                padding-right: 6px;
-            }
-            QLabel#RibbonGroupTitle {
-                color: #94A3B8;
-                font-size: 10px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                border: none;
-                background: transparent;
-            }
-        """)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(4, 2, 6, 4)
@@ -118,13 +108,34 @@ class RibbonGroup(QFrame):
         self.content_layout = QHBoxLayout()
         self.content_layout.setContentsMargins(0, 0, 0, 0)
         self.content_layout.setSpacing(4)
-        layout.addLayout(self.content_layout, 1)
+        layout.addLayout(self.content_layout)
 
-        # Bottom title
+        # Group bottom label
         self.title_lbl = QLabel(title)
         self.title_lbl.setObjectName("RibbonGroupTitle")
         self.title_lbl.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.title_lbl, 0, Qt.AlignBottom)
+        layout.addWidget(self.title_lbl)
+
+        self.apply_theme(get_theme_dict("Aura Indigo"))
+
+    def apply_theme(self, theme: dict):
+        self.setStyleSheet(f"""
+            QFrame#RibbonGroupFrame {{
+                background-color: transparent;
+                border-right: 1px solid {theme['border_color']};
+                margin-right: 4px;
+                padding-right: 6px;
+            }}
+            QLabel#RibbonGroupTitle {{
+                color: {theme['text_muted']};
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border: none;
+                background: transparent;
+            }}
+        """)
 
     def add_widget(self, widget):
         self.content_layout.addWidget(widget)
@@ -145,46 +156,6 @@ class RibbonBar(QFrame):
         self.setObjectName("RibbonBar")
         self.setFixedHeight(126)
         self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setStyleSheet("""
-            QFrame#RibbonBar {
-                background-color: #F1F5F9;
-            }
-            QTabWidget {
-                background-color: #F1F5F9;
-                border: none;
-            }
-            QTabWidget::pane {
-                border: none;
-                border-top: 1px solid #CBD5E1;
-                background-color: #FFFFFF;
-                top: -1px;
-            }
-            QTabBar {
-                background-color: #F1F5F9;
-                qproperty-drawBase: 0;
-            }
-            QTabBar::tab {
-                background-color: transparent;
-                color: #64748B;
-                font-size: 12px;
-                font-weight: 700;
-                padding: 6px 18px;
-                border: none;
-                border-bottom: 2.5px solid transparent;
-                margin-top: 2px;
-            }
-            QTabBar::tab:hover {
-                color: #4F46E5;
-                background-color: #E2E8F0;
-            }
-            QTabBar::tab:selected {
-                color: #4F46E5;
-                border-bottom: 2.5px solid #4F46E5;
-                background-color: #FFFFFF;
-                border-top-left-radius: 6px;
-                border-top-right-radius: 6px;
-            }
-        """)
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -197,12 +168,6 @@ class RibbonBar(QFrame):
         self.bottom_divider = QFrame()
         self.bottom_divider.setObjectName("RibbonBottomDivider")
         self.bottom_divider.setFixedHeight(2)
-        self.bottom_divider.setStyleSheet("""
-            QFrame#RibbonBottomDivider {
-                background-color: #94A3B8;
-                border: none;
-            }
-        """)
         main_layout.addWidget(self.bottom_divider, 0)
 
         self._build_file_tab()
@@ -211,8 +176,69 @@ class RibbonBar(QFrame):
         self._build_view_tab()
         self._build_help_tab()
 
+        self.apply_theme(get_theme_dict("Aura Indigo"))
+
+    def apply_theme(self, theme: dict):
+        self.setStyleSheet(f"""
+            QFrame#RibbonBar {{
+                background-color: {theme['bg_ribbon_tab']};
+            }}
+            QTabWidget {{
+                background-color: {theme['bg_ribbon_tab']};
+                border: none;
+            }}
+            QTabWidget::pane {{
+                border: none;
+                border-top: 1px solid {theme['border_color']};
+                background-color: {theme['bg_ribbon_pane']};
+                top: -1px;
+            }}
+            QTabBar {{
+                background-color: {theme['bg_ribbon_tab']};
+                qproperty-drawBase: 0;
+            }}
+            QTabBar::tab {{
+                background-color: transparent;
+                color: {theme['text_muted']};
+                font-size: 12px;
+                font-weight: 700;
+                padding: 6px 18px;
+                border: none;
+                border-bottom: 2.5px solid transparent;
+                margin-top: 2px;
+            }}
+            QTabBar::tab:hover {{
+                color: {theme['primary']};
+                background-color: {theme['subtle_bg']};
+            }}
+            QTabBar::tab:selected {{
+                color: {theme['primary']};
+                border-bottom: 2.5px solid {theme['primary']};
+                background-color: {theme['bg_ribbon_pane']};
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+            }}
+            QWidget#RibbonTabPage {{
+                background-color: {theme['bg_ribbon_pane']};
+            }}
+        """)
+        self.bottom_divider.setStyleSheet(f"""
+            QFrame#RibbonBottomDivider {{
+                background-color: {theme['ribbon_divider']};
+                border: none;
+            }}
+        """)
+        for page in self.findChildren(QWidget, "RibbonTabPage"):
+            page.setStyleSheet(f"background-color: {theme['bg_ribbon_pane']};")
+        for btn in self.findChildren(RibbonButton):
+            btn.apply_theme(theme)
+        for grp in self.findChildren(RibbonGroup):
+            grp.apply_theme(theme)
+
     def _create_tab_page(self) -> tuple:
         page = QWidget()
+        page.setObjectName("RibbonTabPage")
+        page.setAttribute(Qt.WA_StyledBackground, True)
         layout = QHBoxLayout(page)
         layout.setContentsMargins(8, 2, 8, 2)
         layout.setSpacing(4)

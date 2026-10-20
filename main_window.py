@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QMainWindow, QStackedWidget, QFileDialog, QMessageBox,
     QApplication, QLabel, QMenu, QInputDialog, QFrame
 )
-from PySide6.QtCore import Qt, QSize, QTimer
+from PySide6.QtCore import Qt, QSize, QTimer, QSettings
 from PySide6.QtGui import QIcon, QAction, QPixmap, QClipboard
 
 from version import APP_NAME, APP_VERSION
@@ -25,7 +25,7 @@ from extra_tools import (
     CommentDialog, RepairDialog, PasswordRecoveryDialog, MalwareScanDialog, ColorThemeDialog
 )
 from help_dialog import HelpDialog
-from theme import apply_theme_to_app
+from theme import apply_theme_to_app, get_theme_dict
 from workers import ExtractWorker, CompressWorker, TestWorker
 
 
@@ -40,6 +40,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"{APP_NAME} {APP_VERSION}")
         self.resize(1020, 740)
         self.setMinimumSize(780, 520)
+
+        # Settings & Saved Theme
+        self.settings = QSettings("AuraStudios", "AuraZip")
+        self.current_theme = self.settings.value("theme", "Aura Indigo (기본 시그니처)")
 
         # Window Icon
         app_icon = os.path.join(self.asset_dir, "app_icon.ico")
@@ -57,6 +61,9 @@ class MainWindow(QMainWindow):
         self._setup_statusbar()
         self._setup_shortcuts()
 
+        # Apply saved theme across all components
+        self.apply_theme(self.current_theme)
+
         self._update_ui_state(has_archive=False)
 
         # Auto Updater Setup (백그라운드에서 실행 2.5초 후 새 버전 자동 확인)
@@ -65,6 +72,20 @@ class MainWindow(QMainWindow):
 
         if initial_archive and os.path.exists(initial_archive):
             self.open_archive(initial_archive)
+
+    def apply_theme(self, theme_name: str):
+        """선택한 테마를 앱 전체 및 모든 세부 컴포넌트에 즉시 적용하고 영구 저장"""
+        self.current_theme = theme_name
+        self.settings.setValue("theme", theme_name)
+        apply_theme_to_app(QApplication.instance(), theme_name)
+
+        tdict = get_theme_dict(theme_name)
+        if hasattr(self, "ribbon"):
+            self.ribbon.apply_theme(tdict)
+        if hasattr(self, "start_view"):
+            self.start_view.apply_theme(tdict)
+        if hasattr(self, "archive_view"):
+            self.archive_view.apply_theme(tdict)
 
     def _setup_ribbon(self):
         self.ribbon = RibbonBar(self)
@@ -635,8 +656,8 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"항상 위에 표시가 {state_str}되었습니다.", 3000)
 
     def _on_color_theme(self):
-        dlg = ColorThemeDialog(self)
-        dlg.theme_selected.connect(lambda name: apply_theme_to_app(QApplication.instance(), name))
+        dlg = ColorThemeDialog(current_theme=self.current_theme, parent=self)
+        dlg.theme_selected.connect(self.apply_theme)
         dlg.exec()
 
     def _on_open_install_dir(self):

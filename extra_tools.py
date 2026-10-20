@@ -274,18 +274,18 @@ class MalwareScanDialog(QDialog):
 class ColorThemeDialog(QDialog):
     theme_selected = Signal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, current_theme: str = "Aura Indigo (기본 시그니처)", parent=None):
         super().__init__(parent)
         self.setWindowTitle("색상 및 테마 설정 - AuraZip")
-        self.setFixedSize(360, 200)
+        self.setFixedSize(380, 200)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         layout = QVBoxLayout(self)
         layout.setSpacing(14)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(22, 22, 22, 22)
 
         title_lbl = QLabel("🎨 테마 프리셋 선택")
-        title_lbl.setStyleSheet("font-size: 15px; font-weight: 700; color: #1E293B;")
+        title_lbl.setObjectName("DialogHeader")
         layout.addWidget(title_lbl)
 
         self.theme_combo = QComboBox()
@@ -295,6 +295,13 @@ class ColorThemeDialog(QDialog):
             "Emerald Mint (에메랄드 민트)",
             "Sunset Coral (선셋 코랄 모드)"
         ])
+
+        for i in range(self.theme_combo.count()):
+            txt = self.theme_combo.itemText(i)
+            if current_theme in txt or txt in current_theme:
+                self.theme_combo.setCurrentIndex(i)
+                break
+
         layout.addWidget(self.theme_combo)
 
         btn_box = QHBoxLayout()

@@ -276,11 +276,13 @@ QComboBox:on::drop-down {
     border-left: 2px solid #4338CA;
 }
 QComboBox::down-arrow {
+    subcontrol-origin: padding;
+    subcontrol-position: center;
     image: url('__CHEVRON_DOWN__');
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
 }
-QComboBox:hover::down-arrow, QComboBox:on::down-arrow {
+QComboBox::down-arrow:hover, QComboBox::down-arrow:on {
     image: url('__CHEVRON_ACTIVE__');
 }
 
@@ -382,48 +384,131 @@ QSS_THEME = (
 )
 
 
-def get_theme_qss(theme_name: str = "Aura Indigo") -> str:
-    """테마 이름에 따라 동적으로 QSS 스타일시트를 생성"""
-    primary = "#4F46E5"
-    primary_dark = "#4338CA"
-    accent = "#6366F1"
-    subtle_bg = "#EEF2FF"
-    subtle_border = "#C7D2FE"
-    bg_main = "#F1F5F9"
-    bg_widget = "#F8FAFC"
-    text_main = "#0F172A"
-    card_bg = "#FFFFFF"
+THEMES = {
+    "Aura Indigo (기본 시그니처)": {
+        "name": "Aura Indigo",
+        "is_dark": False,
+        "primary": "#4F46E5",
+        "primary_dark": "#4338CA",
+        "primary_light": "#6366F1",
+        "accent": "#6366F1",
+        "subtle_bg": "#EEF2FF",
+        "subtle_border": "#C7D2FE",
+        "bg_window": "#F1F5F9",
+        "bg_canvas": "#F1F5F9",
+        "bg_card": "#FFFFFF",
+        "bg_ribbon_tab": "#F1F5F9",
+        "bg_ribbon_pane": "#FFFFFF",
+        "ribbon_divider": "#94A3B8",
+        "text_main": "#0F172A",
+        "text_secondary": "#334155",
+        "text_muted": "#64748B",
+        "border_color": "#E2E8F0",
+        "border_card": "#E2E8F0",
+        "border_card_hover": "#6366F1",
+        "btn_hover": "#EEF2FF",
+        "btn_hover_border": "#C7D2FE",
+        "btn_pressed": "#E0E7FF",
+    },
+    "Dark Slate (다크 슬레이트 모드)": {
+        "name": "Dark Slate",
+        "is_dark": True,
+        "primary": "#818CF8",
+        "primary_dark": "#6366F1",
+        "primary_light": "#A5B4FC",
+        "accent": "#38BDF8",
+        "subtle_bg": "#334155",
+        "subtle_border": "#475569",
+        "bg_window": "#0F172A",
+        "bg_canvas": "#0F172A",
+        "bg_card": "#1E293B",
+        "bg_ribbon_tab": "#0F172A",
+        "bg_ribbon_pane": "#1E293B",
+        "ribbon_divider": "#475569",
+        "text_main": "#F8FAFC",
+        "text_secondary": "#E2E8F0",
+        "text_muted": "#94A3B8",
+        "border_color": "#334155",
+        "border_card": "#334155",
+        "border_card_hover": "#818CF8",
+        "btn_hover": "#334155",
+        "btn_hover_border": "#6366F1",
+        "btn_pressed": "#1E293B",
+    },
+    "Emerald Mint (에메랄드 민트)": {
+        "name": "Emerald Mint",
+        "is_dark": False,
+        "primary": "#059669",
+        "primary_dark": "#047857",
+        "primary_light": "#10B981",
+        "accent": "#10B981",
+        "subtle_bg": "#ECFDF5",
+        "subtle_border": "#A7F3D0",
+        "bg_window": "#F0FDF4",
+        "bg_canvas": "#F0FDF4",
+        "bg_card": "#FFFFFF",
+        "bg_ribbon_tab": "#E6F7EC",
+        "bg_ribbon_pane": "#FFFFFF",
+        "ribbon_divider": "#6EE7B7",
+        "text_main": "#064E3B",
+        "text_secondary": "#065F46",
+        "text_muted": "#047857",
+        "border_color": "#D1FAE5",
+        "border_card": "#D1FAE5",
+        "border_card_hover": "#10B981",
+        "btn_hover": "#ECFDF5",
+        "btn_hover_border": "#A7F3D0",
+        "btn_pressed": "#D1FAE5",
+    },
+    "Sunset Coral (선셋 코랄 모드)": {
+        "name": "Sunset Coral",
+        "is_dark": False,
+        "primary": "#EA580C",
+        "primary_dark": "#C2410C",
+        "primary_light": "#F97316",
+        "accent": "#F97316",
+        "subtle_bg": "#FFF7ED",
+        "subtle_border": "#FED7AA",
+        "bg_window": "#FFF7ED",
+        "bg_canvas": "#FFF7ED",
+        "bg_card": "#FFFFFF",
+        "bg_ribbon_tab": "#FFEDD5",
+        "bg_ribbon_pane": "#FFFFFF",
+        "ribbon_divider": "#FDBA74",
+        "text_main": "#7C2D12",
+        "text_secondary": "#9A3412",
+        "text_muted": "#C2410C",
+        "border_color": "#FFEDD5",
+        "border_card": "#FFEDD5",
+        "border_card_hover": "#F97316",
+        "btn_hover": "#FFF7ED",
+        "btn_hover_border": "#FED7AA",
+        "btn_pressed": "#FFEDD5",
+    }
+}
 
-    if "Dark Slate" in theme_name:
-        primary = "#818CF8"
-        primary_dark = "#6366F1"
-        accent = "#A5B4FC"
-        subtle_bg = "#334155"
-        subtle_border = "#475569"
-        bg_main = "#0F172A"
-        bg_widget = "#1E293B"
-        text_main = "#F8FAFC"
-        card_bg = "#1E293B"
-    elif "Emerald Mint" in theme_name:
-        primary = "#059669"
-        primary_dark = "#047857"
-        accent = "#10B981"
-        subtle_bg = "#ECFDF5"
-        subtle_border = "#A7F3D0"
-        bg_main = "#F0FDF4"
-        bg_widget = "#F8FAFC"
-        text_main = "#0F172A"
-        card_bg = "#FFFFFF"
-    elif "Sunset Coral" in theme_name:
-        primary = "#EA580C"
-        primary_dark = "#C2410C"
-        accent = "#F97316"
-        subtle_bg = "#FFF7ED"
-        subtle_border = "#FED7AA"
-        bg_main = "#FFF7ED"
-        bg_widget = "#FFFAF0"
-        text_main = "#0F172A"
-        card_bg = "#FFFFFF"
+
+def get_theme_dict(theme_name: str = "Aura Indigo") -> dict:
+    """테마 이름에 해당하는 세부 팔레트 딕셔너리 반환"""
+    for key, val in THEMES.items():
+        if key in theme_name or theme_name in key:
+            return val
+        if val["name"].lower() in theme_name.lower():
+            return val
+    return THEMES["Aura Indigo (기본 시그니처)"]
+
+
+def get_theme_qss(theme_name: str = "Aura Indigo") -> str:
+    """테마 이름에 따라 동적으로 최적화된 QSS 스타일시트를 생성"""
+    t = get_theme_dict(theme_name)
+    primary = t["primary"]
+    primary_dark = t["primary_dark"]
+    accent = t["accent"]
+    subtle_bg = t["subtle_bg"]
+    subtle_border = t["subtle_border"]
+    bg_main = t["bg_canvas"]
+    card_bg = t["bg_card"]
+    text_main = t["text_main"]
 
     qss = (
         QSS_THEME_RAW
@@ -436,49 +521,208 @@ def get_theme_qss(theme_name: str = "Aura Indigo") -> str:
         .replace("__CHEVRON_ACTIVE__", CHEVRON_ACTIVE)
     )
 
-    if "Dark Slate" in theme_name:
+    if t["is_dark"]:
         qss += f"""
         QWidget {{
-            background-color: {bg_widget};
-            color: {text_main};
+            color: {t['text_main']};
+            selection-background-color: {t['primary']};
+            selection-color: #FFFFFF;
+        }}
+        QLabel {{
+            color: {t['text_main']};
+            border: none;
+            background: transparent;
+        }}
+        QLabel#DialogHeader {{
+            font-size: 15px;
+            font-weight: 700;
+            color: {t['text_main']};
+        }}
+        QMainWindow, QDialog {{
+            background-color: {t['bg_window']};
+            color: {t['text_main']};
+        }}
+        QMenuBar {{
+            background-color: {t['bg_card']};
+            border-bottom: 1px solid {t['border_color']};
+            color: {t['text_main']};
+        }}
+        QMenuBar::item {{
+            color: {t['text_secondary']};
+            background: transparent;
+        }}
+        QMenuBar::item:selected {{
+            background-color: {t['subtle_bg']};
+            color: {t['primary']};
+        }}
+        QMenu {{
+            background-color: {t['bg_card']};
+            border: 1px solid {t['border_color']};
+            color: {t['text_main']};
+        }}
+        QMenu::item {{
+            color: {t['text_secondary']};
+        }}
+        QMenu::item:selected {{
+            background-color: {t['subtle_bg']};
+            color: {t['primary']};
+        }}
+        QStatusBar {{
+            background-color: {t['bg_card']};
+            border-top: 1px solid {t['border_color']};
+            color: {t['text_muted']};
+        }}
+        QFrame#StatsBanner {{
+            background-color: {t['bg_card']};
+            border-bottom: 1px solid {t['border_color']};
+        }}
+        QLabel#StatsTitle {{
+            color: {t['text_main']};
+        }}
+        QLabel#StatsPill {{
+            background-color: {t['subtle_bg']};
+            border: 1px solid {t['border_color']};
+            color: {t['primary']};
+        }}
+        QFrame#NavFrame {{
+            background-color: {t['bg_window']};
+            border-bottom: 1px solid {t['border_color']};
+        }}
+        QLineEdit#PathEdit {{
+            background-color: {t['bg_card']};
+            border: 1px solid {t['border_color']};
+            color: {t['text_main']};
+        }}
+        QLineEdit#PathEdit:focus {{
+            border-color: {t['primary']};
+            background-color: {t['bg_window']};
+        }}
+        QLineEdit#SearchBox {{
+            background-color: {t['bg_card']};
+            border: 1px solid {t['border_color']};
+            color: {t['text_main']};
+        }}
+        QLineEdit#SearchBox:focus {{
+            border-color: {t['primary']};
+        }}
+        QLineEdit, QSpinBox {{
+            background-color: {t['bg_card']};
+            border: 1.5px solid {t['border_color']};
+            color: {t['text_main']};
+        }}
+        QLineEdit:focus, QSpinBox:focus {{
+            border-color: {t['primary']};
+            background-color: {t['bg_window']};
+        }}
+        QComboBox {{
+            background: {t['bg_card']};
+            border: 1.5px solid {t['border_color']};
+            color: {t['text_main']};
+        }}
+        QComboBox:hover {{
+            border-color: {t['primary']};
+        }}
+        QComboBox:focus, QComboBox:on {{
+            border-color: {t['primary']};
+            background: {t['bg_window']};
+        }}
+        QComboBox::drop-down {{
+            background: {t['subtle_bg']};
+            border-left: 1.5px solid {t['border_color']};
+        }}
+        QComboBox QAbstractItemView {{
+            background-color: {t['bg_card']};
+            border: 1.5px solid {t['border_color']};
+            color: {t['text_main']};
+            selection-background-color: {t['subtle_bg']};
+            selection-color: {t['primary']};
+        }}
+        QComboBox QAbstractItemView::item {{
+            color: {t['text_main']};
+        }}
+        QComboBox QAbstractItemView::item:hover {{
+            background-color: {t['subtle_bg']};
+            color: {t['primary']};
+        }}
+        QPushButton {{
+            background-color: {t['subtle_bg']};
+            color: {t['text_main']};
+            border: 1px solid {t['border_color']};
+        }}
+        QPushButton:hover {{
+            background-color: #475569;
+            border-color: {t['primary']};
+        }}
+        QPushButton#PrimaryBtn {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {t['primary_light']}, stop:1 {t['primary']});
+            color: #FFFFFF;
+            border: none;
+        }}
+        QTableWidget {{
+            background-color: {t['bg_card']};
+            color: {t['text_main']};
+            gridline-color: {t['border_color']};
+            border: none;
+        }}
+        QHeaderView::section {{
+            background-color: {t['bg_window']};
+            color: {t['text_muted']};
+            border-bottom: 1px solid {t['border_color']};
+            border-right: 1px solid {t['border_color']};
+        }}
+        QTableWidget::item:selected {{
+            background-color: {t['subtle_bg']};
+            color: {t['primary']};
+        }}
+        QScrollBar:vertical {{
+            background: {t['bg_window']};
+        }}
+        QScrollBar::handle:vertical {{
+            background: {t['subtle_border']};
+        }}
+        QScrollBar::handle:vertical:hover {{
+            background: {t['primary']};
+        }}
+        QScrollArea#StartScrollArea, QWidget#StartContainer {{
+            background-color: {t['bg_canvas']};
+        }}
+        """
+    else:
+        # Light theme variants (Emerald, Sunset, Aura Indigo)
+        qss += f"""
+        QLabel#DialogHeader {{
+            font-size: 15px;
+            font-weight: 700;
+            color: {t['text_main']};
         }}
         QMainWindow, QDialog {{
             background-color: {bg_main};
         }}
-        QMenuBar, QMenu, QToolBar, QGroupBox, QTableWidget, QListWidget, QTextBrowser {{
-            background-color: {card_bg};
-            color: {text_main};
-            border-color: {subtle_border};
-        }}
-        QTabBar::tab {{
-            color: #94A3B8;
-        }}
-        QTabBar::tab:selected {{
-            color: {accent};
-            background-color: {card_bg};
-            border-bottom: 2px solid {accent};
-        }}
-        QLineEdit, QComboBox, QSpinBox {{
-            background-color: {card_bg};
-            color: {text_main};
-            border-color: {subtle_border};
-        }}
-        QPushButton {{
-            background-color: {card_bg};
-            color: {text_main};
-            border-color: {subtle_border};
-        }}
-        QPushButton:hover {{
-            background-color: {subtle_bg};
-        }}
-        QFrame#RibbonBar {{
-            background-color: #1E293B;
-        }}
-        QFrame#RibbonBottomDivider {{
-            background-color: #475569;
-        }}
         QScrollArea#StartScrollArea, QWidget#StartContainer {{
-            background-color: #0F172A;
+            background-color: {bg_main};
+        }}
+        QFrame#StatsBanner {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {t['subtle_bg']}, stop:1 {t['bg_window']});
+            border-bottom: 1px solid {t['border_color']};
+        }}
+        QLabel#StatsTitle {{
+            color: {t['text_main']};
+        }}
+        QLabel#StatsPill {{
+            background-color: {t['bg_card']};
+            border: 1px solid {t['border_color']};
+            color: {t['primary']};
+        }}
+        QFrame#NavFrame {{
+            background-color: {t['bg_window']};
+            border-bottom: 1px solid {t['border_color']};
+        }}
+        QPushButton#PrimaryBtn {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {t['primary_light']}, stop:1 {primary});
+            color: #FFFFFF;
+        }}
+        QPushButton#PrimaryBtn:hover {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {primary}, stop:1 {primary_dark});
         }}
         """
     return qss
