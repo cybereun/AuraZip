@@ -42,10 +42,26 @@ def main():
         sys.exit(ret.returncode)
 
     out_dir = os.path.join(BASE_DIR, "dist_installer")
-    print(f"\n[SUCCESS] Installer built successfully in: {out_dir}")
+    os.makedirs(out_dir, exist_ok=True)
+
+    print("\n=== [3/3] Packaging Portable ZIP Archive ===")
+    import zipfile
+    from version import APP_VERSION
+    portable_zip = os.path.join(out_dir, f"AuraZip_Portable_{APP_VERSION}.zip")
+    src_dir = os.path.join(BASE_DIR, "dist", "AuraZip")
+    if os.path.exists(src_dir):
+        with zipfile.ZipFile(portable_zip, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+            for root, dirs, files in os.walk(src_dir):
+                for file in files:
+                    full_p = os.path.join(root, file)
+                    rel_p = os.path.relpath(full_p, src_dir)
+                    zf.write(full_p, os.path.join("AuraZip", rel_p))
+        print(f" -> Created Portable ZIP: {portable_zip} ({os.path.getsize(portable_zip)/(1024*1024):.2f} MB)")
+
+    print(f"\n[SUCCESS] All outputs generated successfully in: {out_dir}")
     if os.path.exists(out_dir):
         for f in os.listdir(out_dir):
-            if f.endswith(".exe"):
+            if f.endswith(".exe") or f.endswith(".zip"):
                 size_mb = os.path.getsize(os.path.join(out_dir, f)) / (1024 * 1024)
                 print(f" -> {f} ({size_mb:.2f} MB)")
 
