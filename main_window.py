@@ -201,13 +201,13 @@ class MainWindow(QMainWindow):
 
         if not has_archive:
             self.stack.setCurrentIndex(0)
-            self.setWindowTitle("AuraZip")
+            self.setWindowTitle(f"{APP_NAME} {APP_VERSION}")
             self.status_lbl_info.setText("아카이브 파일을 열람하거나 새로 압축할 파일을 추가하세요.")
             self.status_lbl_stats.setText("")
         else:
             self.stack.setCurrentIndex(1)
             base_name = os.path.basename(self.current_archive_path)
-            self.setWindowTitle(f"{base_name} - AuraZip")
+            self.setWindowTitle(f"{base_name} - {APP_NAME} {APP_VERSION}")
 
     def _on_selection_changed(self, count, bytes_val):
         if count > 0:
