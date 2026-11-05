@@ -1,3 +1,4 @@
+from translations import tr, trf
 import os
 import sys
 import json
@@ -92,7 +93,7 @@ class CheckUpdateThread(QThread):
                 info = {
                     "tag_name": tag_name,
                     "title": data.get("name", tag_name),
-                    "body": data.get("body", "새로운 버전이 출시되었습니다."),
+                    "body": data.get("body", tr("새로운 버전이 출시되었습니다.")),
                     "download_url": download_url,
                     "asset_name": asset_name,
                     "asset_size": asset_size,
@@ -107,7 +108,7 @@ class CheckUpdateThread(QThread):
                 # No release yet
                 self.no_update.emit(APP_VERSION)
             else:
-                self.check_error.emit(f"서버 응답 오류 (HTTP {e.code})")
+                self.check_error.emit(trf('서버 응답 오류 (HTTP ZXPH0XZ)', e.code))
         except Exception as e:
             self.check_error.emit(str(e))
 
@@ -158,12 +159,12 @@ class DownloadUpdateThread(QThread):
                         os.remove(target_path)
                     except Exception:
                         pass
-                self.failed.emit("다운로드가 취소되었습니다.")
+                self.failed.emit(tr("다운로드가 취소되었습니다."))
                 return
 
             self.finished.emit(target_path)
         except Exception as e:
-            self.failed.emit(f"다운로드 실패: {str(e)}")
+            self.failed.emit(trf('다운로드 실패: ZXPH0XZ', str(e)))
 
 
 class UpdateDialog(QDialog):
@@ -172,7 +173,7 @@ class UpdateDialog(QDialog):
         self.update_info = update_info
         self.download_thread = None
 
-        self.setWindowTitle(f"{APP_NAME} 소프트웨어 업데이트")
+        self.setWindowTitle(trf('ZXPH0XZ 소프트웨어 업데이트', f'{APP_NAME}'))
         self.setFixedSize(520, 420)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
@@ -202,19 +203,19 @@ class UpdateDialog(QDialog):
 
         v_layout = QVBoxLayout()
         v_layout.setSpacing(4)
-        title_lbl = QLabel(f"<b>새로운 {APP_NAME} 업데이트가 있습니다!</b>")
+        title_lbl = QLabel(trf('<b>새로운 ZXPH0XZ 업데이트가 있습니다!</b>', f'{APP_NAME}'))
         title_lbl.setStyleSheet("font-size: 15px; color: #1E293B; font-weight: bold;")
         v_layout.addWidget(title_lbl)
 
         cur_v = APP_VERSION
         new_v = self.update_info.get("tag_name", "")
-        ver_lbl = QLabel(f"현재 버전: <span style='color:#64748B;'>{cur_v}</span>  ➔  최신 버전: <b style='color:#4F46E5;'>{new_v}</b>")
+        ver_lbl = QLabel(trf("현재 버전: <span style='color:#64748B;'>ZXPH0XZ</span>  ➔  최신 버전: <b style='color:#4F46E5;'>ZXPH1XZ</b>", f'{cur_v}', f'{new_v}'))
         ver_lbl.setStyleSheet("font-size: 12px;")
         v_layout.addWidget(ver_lbl)
 
         rel_title = self.update_info.get("title", "")
         if rel_title and rel_title != new_v:
-            t_lbl = QLabel(f"릴리즈: {rel_title}")
+            t_lbl = QLabel(trf('릴리즈: ZXPH0XZ', f'{rel_title}'))
             t_lbl.setStyleSheet("font-size: 11px; color: #475569;")
             v_layout.addWidget(t_lbl)
 
@@ -230,13 +231,13 @@ class UpdateDialog(QDialog):
         layout.addWidget(line)
 
         # Release Notes Label & Text
-        notes_lbl = QLabel("업데이트 주요 변경 사항:")
+        notes_lbl = QLabel(tr('업데이트 주요 변경 사항:'))
         notes_lbl.setStyleSheet("font-size: 12px; font-weight: 600; color: #334155;")
         layout.addWidget(notes_lbl)
 
         self.notes_text = QTextEdit()
         self.notes_text.setReadOnly(True)
-        self.notes_text.setPlainText(self.update_info.get("body", "세부 릴리즈 노트가 없습니다."))
+        self.notes_text.setPlainText(self.update_info.get("body", tr("세부 릴리즈 노트가 없습니다.")))
         self.notes_text.setStyleSheet("""
             QTextEdit {
                 background-color: #F8FAFC;
@@ -284,7 +285,7 @@ class UpdateDialog(QDialog):
         btn_layout.setSpacing(10)
         btn_layout.addStretch()
 
-        self.btn_later = QPushButton("나중에")
+        self.btn_later = QPushButton(tr('나중에'))
         self.btn_later.setCursor(Qt.PointingHandCursor)
         self.btn_later.setFixedHeight(34)
         self.btn_later.setStyleSheet("""
@@ -305,7 +306,7 @@ class UpdateDialog(QDialog):
         self.btn_later.clicked.connect(self.reject)
         btn_layout.addWidget(self.btn_later)
 
-        self.btn_update = QPushButton("지금 업데이트 및 재시작")
+        self.btn_update = QPushButton(tr('지금 업데이트 및 재시작'))
         self.btn_update.setCursor(Qt.PointingHandCursor)
         self.btn_update.setFixedHeight(34)
         self.btn_update.setStyleSheet("""
@@ -339,16 +340,16 @@ class UpdateDialog(QDialog):
                 import webbrowser
                 webbrowser.open(html_url)
             else:
-                QMessageBox.warning(self, "업데이트 안내", "직접 다운로드할 수 있는 설치 파일이 없습니다. 릴리즈 페이지를 확인해주세요.")
+                QMessageBox.warning(self, tr('업데이트 안내'), tr('직접 다운로드할 수 있는 설치 파일이 없습니다. 릴리즈 페이지를 확인해주세요.'))
             self.accept()
             return
 
         self.btn_update.setEnabled(False)
         self.btn_later.setEnabled(False)
-        self.btn_update.setText("다운로드 중...")
+        self.btn_update.setText(tr('다운로드 중...'))
         self.progress_bar.setVisible(True)
         self.status_lbl.setVisible(True)
-        self.status_lbl.setText("업데이트 설치 파일을 다운로드하고 있습니다...")
+        self.status_lbl.setText(tr('업데이트 설치 파일을 다운로드하고 있습니다...'))
 
         asset_name = self.update_info.get("asset_name", "AuraZip_Setup_Update.exe")
         self.download_thread = DownloadUpdateThread(download_url, asset_name, self)
@@ -362,12 +363,12 @@ class UpdateDialog(QDialog):
         mb_down = downloaded / (1024 * 1024)
         if total > 0:
             mb_tot = total / (1024 * 1024)
-            self.status_lbl.setText(f"다운로드 중: {mb_down:.1f} MB / {mb_tot:.1f} MB ({pct}%)")
+            self.status_lbl.setText(trf('다운로드 중: ZXPH0XZ MB / ZXPH1XZ MB (ZXPH2XZ%)', f'{mb_down:.1f}', f'{mb_tot:.1f}', f'{pct}'))
         else:
-            self.status_lbl.setText(f"다운로드 중: {mb_down:.1f} MB")
+            self.status_lbl.setText(trf('다운로드 중: ZXPH0XZ MB', f'{mb_down:.1f}'))
 
     def _on_finished(self, target_path):
-        self.status_lbl.setText("다운로드 완료! 설치 프로그램을 시작하고 AuraZip을 재시작합니다...")
+        self.status_lbl.setText(tr('다운로드 완료! 설치 프로그램을 시작하고 AuraZip을 재시작합니다...'))
         self.progress_bar.setValue(100)
 
         # Launch the installer executable
@@ -375,7 +376,7 @@ class UpdateDialog(QDialog):
             # Inno Setup flags: /CLOSEAPPLICATIONS tells installer to close current app if running
             subprocess.Popen([target_path, "/CLOSEAPPLICATIONS"])
         except Exception as e:
-            QMessageBox.critical(self, "실행 오류", f"설치 프로그램 실행 중 오류가 발생했습니다:\n{str(e)}")
+            QMessageBox.critical(self, tr('실행 오류'), trf('설치 프로그램 실행 중 오류가 발생했습니다:\nZXPH0XZ', f'{str(e)}'))
             self.reject()
             return
 
@@ -386,9 +387,9 @@ class UpdateDialog(QDialog):
     def _on_failed(self, err_msg):
         self.btn_update.setEnabled(True)
         self.btn_later.setEnabled(True)
-        self.btn_update.setText("재시도")
+        self.btn_update.setText(tr('재시도'))
         self.status_lbl.setText(f"<font color='#EF4444'>{err_msg}</font>")
-        QMessageBox.warning(self, "다운로드 실패", err_msg)
+        QMessageBox.warning(self, tr('다운로드 실패'), err_msg)
 
 
 class AutoUpdater:
@@ -412,14 +413,14 @@ class AutoUpdater:
         if not self.silent:
             QMessageBox.information(
                 self.parent,
-                "업데이트 확인",
-                f"현재 최신 버전({cur_ver})을 사용하고 있습니다.\n새로운 업데이트가 없습니다."
+                tr('업데이트 확인'),
+                trf('현재 최신 버전(ZXPH0XZ)을 사용하고 있습니다.\n새로운 업데이트가 없습니다.', f'{cur_ver}')
             )
 
     def _on_check_error(self, err):
         if not self.silent:
             QMessageBox.warning(
                 self.parent,
-                "업데이트 확인 실패",
-                f"업데이트 정보를 확인하는 중 네트워크 오류가 발생했습니다:\n{err}"
+                tr('업데이트 확인 실패'),
+                trf('업데이트 정보를 확인하는 중 네트워크 오류가 발생했습니다:\nZXPH0XZ', f'{err}')
             )

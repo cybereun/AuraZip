@@ -1,3 +1,4 @@
+from translations import tr, trf, translate_html
 """
 AuraZip - In-App User Guide & Help Dialog
 완전 내장형 사용자 가이드 및 도움말 대화상자
@@ -212,7 +213,7 @@ class HelpDialog(QDialog):
     """외부 링크 없이 앱 내부에 완전 통합된 사용자 도움말 뷰어"""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("AuraZip 사용자 가이드 및 도움말")
+        self.setWindowTitle(tr('AuraZip 사용자 가이드 및 도움말'))
         self.resize(800, 560)
         self.setMinimumSize(680, 480)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
@@ -225,12 +226,12 @@ class HelpDialog(QDialog):
 
         # Header Section
         header_layout = QHBoxLayout()
-        header_title = QLabel("📖 AuraZip 통합 도움말 센터")
+        header_title = QLabel(tr('📖 AuraZip 통합 도움말 센터'))
         header_title.setStyleSheet("font-size: 18px; font-weight: 800; color: #1E1B4B;")
         header_layout.addWidget(header_title)
         header_layout.addStretch()
 
-        ver_lbl = QLabel("버전 2.5.0 LTS | 내장 가이드")
+        ver_lbl = QLabel(tr('버전 2.5.0 LTS | 내장 가이드'))
         ver_lbl.setStyleSheet("color: #64748B; font-size: 11px; font-weight: 600;")
         header_layout.addWidget(ver_lbl)
         main_layout.addLayout(header_layout)
@@ -275,7 +276,7 @@ class HelpDialog(QDialog):
         """)
 
         for key, doc in HELP_DOCS.items():
-            item = QListWidgetItem(doc["title"])
+            item = QListWidgetItem(tr(doc["title"]))
             icon_p = os.path.join(self.asset_dir, doc["icon"])
             if os.path.exists(icon_p):
                 item.setIcon(QIcon(icon_p))
@@ -306,7 +307,7 @@ class HelpDialog(QDialog):
         # Bottom Bar
         bottom_box = QHBoxLayout()
         bottom_box.addStretch()
-        close_btn = QPushButton("닫기")
+        close_btn = QPushButton(tr('닫기'))
         close_btn.setObjectName("PrimaryBtn")
         close_btn.setFixedWidth(100)
         close_btn.clicked.connect(self.accept)
@@ -325,4 +326,4 @@ class HelpDialog(QDialog):
         key = item.data(Qt.UserRole)
         doc = HELP_DOCS.get(key)
         if doc:
-            self.browser.setHtml(doc["html"])
+            self.browser.setHtml(translate_html(doc["html"]))

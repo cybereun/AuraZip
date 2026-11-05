@@ -375,6 +375,14 @@ class RibbonBar(QFrame):
         grp_theme.add_widget(self.btn_color)
         layout.addWidget(grp_theme)
 
+        grp_language = RibbonGroup("언어 / Language", page)
+        self.btn_language = RibbonButton("언어 / Language", "tb_web.png", is_large=True)
+        self.language_menu = QMenu(self.btn_language)
+        self.btn_language.setMenu(self.language_menu)
+        self.btn_language.setPopupMode(QToolButton.InstantPopup)
+        grp_language.add_widget(self.btn_language)
+        layout.addWidget(grp_language)
+
         self.tabs.addTab(page, "보기")
 
     def _build_help_tab(self):

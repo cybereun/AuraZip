@@ -1,4 +1,5 @@
 import os
+from translations import tr, trf
 import sys
 import shutil
 import tempfile
@@ -266,7 +267,7 @@ class ArchiveEngine:
                     processed_bytes += m.size
 
         if progress_cb:
-            progress_cb("완료", total_bytes, total_bytes)
+            progress_cb(tr("완료"), total_bytes, total_bytes)
 
         return final_dest
 
@@ -358,7 +359,7 @@ class ArchiveEngine:
                     processed_bytes += size
 
         if progress_cb:
-            progress_cb("완료", total_bytes, total_bytes)
+            progress_cb(tr("완료"), total_bytes, total_bytes)
 
     @staticmethod
     def test_integrity(archive_path: str,
@@ -380,7 +381,7 @@ class ArchiveEngine:
                 
                 bad_file = zf.testzip()
                 if bad_file:
-                    raise ValueError(f"손상된 파일 발견: {bad_file}")
+                    raise ValueError(trf('손상된 파일 발견: ZXPH0XZ', bad_file))
 
                 for idx, info in enumerate(zf.infolist()):
                     if progress_cb:
@@ -393,7 +394,7 @@ class ArchiveEngine:
         elif fmt == '7Z' and py7zr:
             with py7zr.SevenZipFile(archive_path, 'r', password=password) as sz:
                 if not sz.test():
-                    raise ValueError("7Z 아카이브 무결성 검사 실패")
+                    raise ValueError(tr("7Z 아카이브 무결성 검사 실패"))
 
         elif fmt in ('TAR', 'TGZ', 'TBZ2', 'TXZ'):
             with tarfile.open(archive_path, 'r:*') as tf:
@@ -407,5 +408,5 @@ class ArchiveEngine:
                                 pass
 
         if progress_cb:
-            progress_cb("무결성 검사 완료", total_items, total_items)
+            progress_cb(tr("무결성 검사 완료"), total_items, total_items)
         return True

@@ -1,3 +1,4 @@
+from translations import tr, trf
 import os
 import datetime
 from typing import List, Optional
@@ -46,7 +47,7 @@ class ArchiveView(QWidget):
         stats_layout.setContentsMargins(14, 6, 14, 6)
         stats_layout.setSpacing(12)
 
-        self.stats_summary_lbl = QLabel("열린 아카이브 없음 (Ctrl+O로 열기)")
+        self.stats_summary_lbl = QLabel(tr('열린 아카이브 없음 (Ctrl+O로 열기)'))
         self.stats_summary_lbl.setObjectName("StatsTitle")
         stats_layout.addWidget(self.stats_summary_lbl)
 
@@ -55,10 +56,10 @@ class ArchiveView(QWidget):
         self.efficiency_bar.setRange(0, 100)
         self.efficiency_bar.setValue(0)
         self.efficiency_bar.setTextVisible(False)
-        self.efficiency_bar.setToolTip("압축으로 절약된 용량 비율")
+        self.efficiency_bar.setToolTip(tr('압축으로 절약된 용량 비율'))
         stats_layout.addWidget(self.efficiency_bar)
 
-        self.stats_pill = QLabel("0% 절약")
+        self.stats_pill = QLabel(tr('0% 절약'))
         self.stats_pill.setObjectName("StatsPill")
         stats_layout.addWidget(self.stats_pill)
 
@@ -67,7 +68,7 @@ class ArchiveView(QWidget):
         # Instant Live Search Filter Box
         self.search_box = QLineEdit()
         self.search_box.setObjectName("SearchBox")
-        self.search_box.setPlaceholderText("🔍 파일명 즉시 검색...")
+        self.search_box.setPlaceholderText(tr('🔍 파일명 즉시 검색...'))
         self.search_box.textChanged.connect(self._on_search_changed)
         stats_layout.addWidget(self.search_box)
 
@@ -80,11 +81,11 @@ class ArchiveView(QWidget):
         nav_layout.setContentsMargins(14, 6, 14, 6)
         nav_layout.setSpacing(8)
 
-        self.back_btn = QPushButton("◀ 뒤로")
+        self.back_btn = QPushButton(tr('◀ 뒤로'))
         self.back_btn.setFixedWidth(80)
         self.back_btn.clicked.connect(self._go_back)
 
-        self.up_btn = QPushButton("▲ 상위 폴더")
+        self.up_btn = QPushButton(tr('▲ 상위 폴더'))
         self.up_btn.setFixedWidth(116)
         self.up_btn.clicked.connect(self._go_up)
 
@@ -106,7 +107,7 @@ class ArchiveView(QWidget):
         self.table = QTableWidget()
         self.table.setColumnCount(8)
         self.table.setHorizontalHeaderLabels([
-            "이름", "압축 크기", "원본 크기", "압축률", "종류", "수정한 날짜", "보안", "CRC-32"
+            tr('이름'), tr('압축 크기'), tr('원본 크기'), tr('압축률'), tr('종류'), tr('수정한 날짜'), tr('보안'), "CRC-32"
         ])
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         for col in range(1, 8):
@@ -133,7 +134,7 @@ class ArchiveView(QWidget):
         prev_layout.setSpacing(10)
 
         prev_header = QHBoxLayout()
-        self.prev_title = QLabel("🖼️ 이미지 미리보기")
+        self.prev_title = QLabel(tr('🖼️ 이미지 미리보기'))
         self.close_prev_btn = QPushButton("✕")
         self.close_prev_btn.setFixedSize(22, 22)
         self.close_prev_btn.setCursor(Qt.PointingHandCursor)
@@ -160,7 +161,7 @@ class ArchiveView(QWidget):
         img_box_layout = QVBoxLayout(self.img_container)
         img_box_layout.setContentsMargins(6, 6, 6, 6)
 
-        self.preview_img_lbl = QLabel("목록에서 이미지를\n클릭하면 즉시 표시됩니다.")
+        self.preview_img_lbl = QLabel(tr('목록에서 이미지를\n클릭하면 즉시 표시됩니다.'))
         self.preview_img_lbl.setAlignment(Qt.AlignCenter)
         self.preview_img_lbl.setWordWrap(True)
         img_box_layout.addWidget(self.preview_img_lbl)
@@ -224,12 +225,12 @@ class ArchiveView(QWidget):
     def clear_image_preview(self, msg: str = "목록에서 이미지를\n클릭하면 즉시 표시됩니다."):
         self.preview_img_lbl.clear()
         self.preview_img_lbl.setWordWrap(True)
-        self.preview_img_lbl.setText(msg)
+        self.preview_img_lbl.setText(tr(msg))
         self.img_info_lbl.setText("")
 
     def update_image_preview(self, img_bytes: bytes, filename: str, filesize: int):
         if not img_bytes:
-            self.clear_image_preview("미리보기를 불러올 수 없습니다.")
+            self.clear_image_preview(tr('미리보기를 불러올 수 없습니다.'))
             return
 
         pixmap = QPixmap()
@@ -243,17 +244,15 @@ class ArchiveView(QWidget):
             self.preview_img_lbl.setWordWrap(False)
             self.preview_img_lbl.setPixmap(scaled)
             self.img_info_lbl.setText(
-                f"<b>파일명:</b> {os.path.basename(filename)}<br>"
-                f"<b>해상도:</b> {w} × {h} px<br>"
-                f"<b>크기:</b> {format_bytes(filesize)}"
+                trf('<b>파일명:</b> ZXPH0XZ<br><b>해상도:</b> ZXPH1XZ × ZXPH2XZ px<br><b>크기:</b> ZXPH3XZ', f'{os.path.basename(filename)}', f'{w}', f'{h}', f'{format_bytes(filesize)}')
             )
             self.preview_panel.show()
             total_w = self.main_splitter.width()
             if total_w > 400 and (len(self.main_splitter.sizes()) < 2 or self.main_splitter.sizes()[1] < 100):
                 self.main_splitter.setSizes([total_w - 290, 290])
         else:
-            self.clear_image_preview("지원되지 않는 이미지 포맷입니다.")
-            self.img_info_lbl.setText(f"<b>파일명:</b> {os.path.basename(filename)}")
+            self.clear_image_preview(tr('지원되지 않는 이미지 포맷입니다.'))
+            self.img_info_lbl.setText(trf('<b>파일명:</b> ZXPH0XZ', f'{os.path.basename(filename)}'))
 
     def set_items(self, items: List[ArchiveItem]):
         self.clear_image_preview()
@@ -268,9 +267,9 @@ class ArchiveView(QWidget):
     def _update_stats_banner(self):
         file_items = [it for it in self.all_items if not it.is_dir]
         if not file_items:
-            self.stats_summary_lbl.setText("열린 아카이브 없음 (Ctrl+O로 열기)")
+            self.stats_summary_lbl.setText(tr('열린 아카이브 없음 (Ctrl+O로 열기)'))
             self.efficiency_bar.setValue(0)
-            self.stats_pill.setText("0% 절약")
+            self.stats_pill.setText(tr('0% 절약'))
             return
 
         total_orig = sum(it.original_size for it in file_items)
@@ -278,10 +277,10 @@ class ArchiveView(QWidget):
         ratio = (1.0 - (total_comp / total_orig)) * 100.0 if total_orig > 0 else 0.0
 
         self.stats_summary_lbl.setText(
-            f"파일 {len(file_items)}개  |  원본 {format_bytes(total_orig)} -> 압축 {format_bytes(total_comp)}"
+            trf('파일 ZXPH0XZ개  |  원본 ZXPH1XZ -> 압축 ZXPH2XZ', f'{len(file_items)}', f'{format_bytes(total_orig)}', f'{format_bytes(total_comp)}')
         )
         self.efficiency_bar.setValue(int(min(100, max(0, ratio))))
-        self.stats_pill.setText(f"{ratio:.0f}% 용량 절약")
+        self.stats_pill.setText(trf('ZXPH0XZ% 용량 절약', f'{ratio:.0f}'))
 
     def _on_search_changed(self, text: str):
         self.filter_keyword = text.strip().lower()
@@ -296,7 +295,7 @@ class ArchiveView(QWidget):
 
         if not self.all_items:
             self.table.setRowCount(1)
-            empty_item = QTableWidgetItem("📂 열려 있는 아카이브가 없습니다. 상단 [열기 (Ctrl+O)]를 클릭하세요.")
+            empty_item = QTableWidgetItem(tr('📂 열려 있는 아카이브가 없습니다. 상단 [열기 (Ctrl+O)]를 클릭하세요.'))
             empty_item.setForeground(QColor("#94A3B8"))
             self.table.setItem(0, 0, empty_item)
             for col in range(1, 8):
@@ -309,7 +308,7 @@ class ArchiveView(QWidget):
             matches = [it for it in self.all_items if self.filter_keyword in it.name.lower()]
             if not matches:
                 self.table.setRowCount(1)
-                empty_item = QTableWidgetItem(f"🔍 '{self.filter_keyword}' 검색 결과가 없습니다.")
+                empty_item = QTableWidgetItem(trf("🔍 'ZXPH0XZ' 검색 결과가 없습니다.", f'{self.filter_keyword}'))
                 empty_item.setForeground(QColor("#94A3B8"))
                 self.table.setItem(0, 0, empty_item)
                 for col in range(1, 8):
@@ -408,7 +407,10 @@ class ArchiveView(QWidget):
         ratio_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.table.setItem(row, 3, ratio_item)
 
-        kind_item = QTableWidgetItem(it.kind)
+        kind = tr(it.kind)
+        if kind == it.kind and kind.endswith(' 파일'):
+            kind = kind[:-3] + ' ' + tr('파일')
+        kind_item = QTableWidgetItem(kind)
         self.table.setItem(row, 4, kind_item)
 
         date_str = ""
@@ -482,11 +484,11 @@ class ArchiveView(QWidget):
                             self.image_preview_requested.emit(internal_path)
                             return
                         else:
-                            self.clear_image_preview("선택한 항목은\n이미지 파일이 아닙니다.")
-                            self.img_info_lbl.setText(f"<b>파일명:</b> {os.path.basename(internal_path)}")
+                            self.clear_image_preview(tr('선택한 항목은\n이미지 파일이 아닙니다.'))
+                            self.img_info_lbl.setText(trf('<b>파일명:</b> ZXPH0XZ', f'{os.path.basename(internal_path)}'))
                             return
                     else:
-                        self.clear_image_preview("선택한 항목은\n폴더입니다.")
+                        self.clear_image_preview(tr('선택한 항목은\n폴더입니다.'))
                         return
         elif count == 0:
             self.clear_image_preview()
@@ -506,13 +508,13 @@ class ArchiveView(QWidget):
         menu = QMenu(self)
         sel = self.get_selected_items()
 
-        ext_action = QAction("📦 선택 항목 풀기...", self)
+        ext_action = QAction(tr('📦 선택 항목 풀기...'), self)
         ext_action.setEnabled(len(sel) > 0)
         ext_action.triggered.connect(lambda: self.extract_selected.emit(sel))
         menu.addAction(ext_action)
 
         menu.addSeparator()
-        select_all_action = QAction("모두 선택 (Ctrl+A)", self)
+        select_all_action = QAction(tr('모두 선택 (Ctrl+A)'), self)
         select_all_action.triggered.connect(self.table.selectAll)
         menu.addAction(select_all_action)
 

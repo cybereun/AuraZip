@@ -1,4 +1,5 @@
 import os
+from translations import tr
 from PySide6.QtCore import QThread, Signal
 from archive_engine import ArchiveEngine
 
@@ -21,7 +22,7 @@ class ExtractWorker(QThread):
         try:
             def cb(curr_name, proc, total):
                 if self._is_cancelled:
-                    raise InterruptedError("사용자가 압축 해제를 취소했습니다.")
+                    raise InterruptedError(tr("사용자가 압축 해제를 취소했습니다."))
                 self.progress.emit(curr_name, proc, total)
 
             out_dir = ArchiveEngine.extract(
@@ -58,7 +59,7 @@ class CompressWorker(QThread):
         try:
             def cb(curr_name, proc, total):
                 if self._is_cancelled:
-                    raise InterruptedError("사용자가 압축을 취소했습니다.")
+                    raise InterruptedError(tr("사용자가 압축을 취소했습니다."))
                 self.progress.emit(curr_name, proc, total)
 
             ArchiveEngine.create(
