@@ -9,6 +9,10 @@ __pycache__/
 build/
 dist/
 dist_installer/
+dist_msix/
+msix/identity.local.json
+*.pfx
+*.p12
 *.egg-info/
 .installed.cfg
 *.egg

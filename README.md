@@ -25,14 +25,14 @@
 
 ---
 
-## 🚀 최신 릴리즈 다운로드 (v1.0.5)
+## 🚀 최신 릴리즈 다운로드 (v1.0.6)
 
-공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.5](https://github.com/cybereun/AuraZip/releases/tag/v1.0.4)
+공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.6](https://github.com/cybereun/AuraZip/releases/tag/v1.0.6)
 
 | 패키지 형태 | 파일명 | 용량 | 특징 및 권장 사용자 | 다운로드 |
 |---|---|---|---|:---:|
-| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.5.exe` | ~37.3 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.5/AuraZip_Setup_v1.0.5.exe) |
-| **무설치 포터블** | `AuraZip_Portable_v1.0.5.zip` | ~51.6 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.5/AuraZip_Portable_v1.0.5.zip) |
+| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.6.exe` | 약 47.5 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.6/AuraZip_Setup_v1.0.6.exe) |
+| **무설치 포터블** | `AuraZip_Portable_v1.0.6.zip` | 약 68.1 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.6/AuraZip_Portable_v1.0.6.zip) |
 
 ---
 
@@ -67,12 +67,12 @@
 ## 🛠️ 설치 및 사용 방법 (Installation & Usage)
 
 ### 방법 A. 표준 설치 프로그램 사용 (권장)
-1. [`AuraZip_Setup_v1.0.0.exe`](https://github.com/cybereun/AuraZip/releases/download/v1.0.0/AuraZip_Setup_v1.0.0.exe)를 다운로드합니다.
+1. [`AuraZip_Setup_v1.0.6.exe`](https://github.com/cybereun/AuraZip/releases/download/v1.0.6/AuraZip_Setup_v1.0.6.exe)를 다운로드합니다.
 2. 설치 마법사를 실행합니다. (기본값으로 바탕화면 바로가기 및 `.zip`/`.7z` 파일 연결이 체크되어 있습니다.)
 3. 설치 완료 후 바탕화면의 **AuraZip** 아이콘을 클릭하거나, 임의의 `.zip` 파일을 더블 클릭하여 바로 사용합니다.
 
 ### 방법 B. 무설치 포터블 버전 사용
-1. [`AuraZip_Portable_v1.0.0.zip`](https://github.com/cybereun/AuraZip/releases/download/v1.0.0/AuraZip_Portable_v1.0.0.zip)을 다운로드합니다.
+1. [`AuraZip_Portable_v1.0.6.zip`](https://github.com/cybereun/AuraZip/releases/download/v1.0.6/AuraZip_Portable_v1.0.6.zip)를 다운로드합니다.
 2. 원하는 위치(예: `C:\Tools\AuraZip` 또는 USB)에 압축을 풉니다.
 3. 폴더 내 `AuraZip.exe`를 더블 클릭하여 바로 실행합니다.
 
@@ -113,6 +113,12 @@ python main.py
 ---
 
 ## 📋 업데이트 내역 (Changelog)
+
+### [v1.0.6] - 2026-11-06
+- 압축 파일 내부 항목 추가·삭제·이름 변경과 클립보드 붙여넣기 동작을 보완했습니다.
+- 선택 반전, 7Z 미리보기, 빈 폴더 압축, 단독 GZ 인식을 수정했습니다.
+- 보안 검사·복구·암호 확인 결과를 실제 지원 여부와 검사 결과에 맞게 표시하고, 취소 작업의 임시 파일 정리를 보완했습니다.
+- 저장된 암호 전달과 설치 폴더 열기 동작을 개선했습니다.
 
 ### [v1.0.5] - 2026-11-05
 - 보기 리본에서 한국어와 영어를 선택하고 설정을 유지할 수 있습니다.

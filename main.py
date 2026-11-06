@@ -1,12 +1,15 @@
 import os
 import sys
 import ctypes
+from distribution import distribution_channel, github_updates_enabled
+from app_settings import store_settings
 
 # 윈도우 환경에서 실행 시 까만 터미널/콘솔 창을 백그라운드로 즉시 완전 은폐 및 작업 표시줄 아이콘 AppUserModelID 설정
 if sys.platform == "win32":
     try:
         # 작업 표시줄 아이콘 분리 방지 및 전용 아이콘 표시를 위한 고유 AppID 등록
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("AuraStudios.AuraZip.App.1.0.0")
+        if distribution_channel() == "github":
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("AuraStudios.AuraZip.App.1.0.0")
         hwnd = ctypes.windll.kernel32.GetConsoleWindow()
         if hwnd:
             ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_HIDE
@@ -44,7 +47,7 @@ def main():
             app.setWindowIcon(QIcon(png_path))
 
     # Apply initial theme from persistent settings
-    settings = QSettings("AuraStudios", "AuraZip")
+    settings = QSettings("AuraStudios", "AuraZip") if github_updates_enabled() else store_settings()
     saved_theme = settings.value("theme", "Aura Indigo (기본 시그니처)")
     app.setStyleSheet(get_theme_qss(saved_theme))
 

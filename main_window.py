@@ -9,11 +9,13 @@ from PySide6.QtWidgets import (
     QMainWindow, QStackedWidget, QFileDialog, QMessageBox,
     QApplication, QLabel, QMenu, QInputDialog, QFrame, QWidget, QAbstractButton, QLineEdit
 )
-from PySide6.QtCore import Qt, QSize, QTimer, QSettings
+from PySide6.QtCore import Qt, QSize, QTimer, QSettings, QItemSelectionModel, QUrl, QMimeData
 from PySide6.QtGui import QIcon, QAction, QPixmap, QClipboard
 
 from version import APP_NAME, APP_VERSION
 from updater import AutoUpdater
+from distribution import github_updates_enabled
+from app_settings import store_settings
 
 from archive_engine import ArchiveEngine, ArchiveItem
 from start_view import StartView
@@ -27,7 +29,7 @@ from extra_tools import (
 )
 from help_dialog import HelpDialog
 from theme import apply_theme_to_app, get_theme_dict
-from workers import ExtractWorker, CompressWorker, TestWorker
+from workers import ArchiveEditWorker, ExtractWorker, CompressWorker, TestWorker
 from translations import EN, set_language
 
 
@@ -35,6 +37,7 @@ class MainWindow(QMainWindow):
     def __init__(self, initial_archive: str = None):
         super().__init__()
         self.current_archive_path: str = ""
+        self.current_archive_password: str = None
         self.archive_items: list = []
         self.recent_files: list = []
         self.asset_dir = os.path.join(os.path.dirname(__file__), "assets")
@@ -44,7 +47,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(780, 520)
 
         # Settings & Saved Theme
-        self.settings = QSettings("AuraStudios", "AuraZip")
+        self.settings = QSettings("AuraStudios", "AuraZip") if github_updates_enabled() else store_settings()
         self.current_theme = self.settings.value("theme", "Aura Indigo (기본 시그니처)")
 
         # Window Icon
@@ -72,7 +75,11 @@ class MainWindow(QMainWindow):
 
         # Auto Updater Setup (백그라운드에서 실행 2.5초 후 새 버전 자동 확인)
         self.updater = AutoUpdater(self)
-        QTimer.singleShot(2500, lambda: self.updater.check(silent=True))
+        if github_updates_enabled():
+            QTimer.singleShot(2500, lambda: self.updater.check(silent=True))
+        else:
+            # Elevating a packaged process this way is not a supported Store flow.
+            self.ribbon.btn_admin_window.setEnabled(False)
 
         if initial_archive and os.path.exists(initial_archive):
             self.open_archive(initial_archive)
@@ -81,6 +88,8 @@ class MainWindow(QMainWindow):
         """선택한 테마를 앱 전체 및 모든 세부 컴포넌트에 즉시 적용하고 영구 저장"""
         self.current_theme = theme_name
         self.settings.setValue("theme", theme_name)
+        if not github_updates_enabled():
+            self.settings.sync()
         apply_theme_to_app(QApplication.instance(), theme_name)
 
         tdict = get_theme_dict(theme_name)
@@ -124,6 +133,8 @@ class MainWindow(QMainWindow):
     def _set_language(self, language):
         language = language if language in ("ko", "en") else "ko"
         self.settings.setValue("language", language)
+        if not github_updates_enabled():
+            self.settings.sync()
         set_language(language)
         for widget, original in self._language_originals:
             widget.setText(EN.get(original, original) if language == "en" else original)
@@ -262,11 +273,12 @@ class MainWindow(QMainWindow):
         self.ribbon.btn_del_archive.setEnabled(True)
         self.ribbon.btn_purge_archive.setEnabled(True)
 
-        self.ribbon.btn_add_file.setEnabled(True)
-        self.ribbon.btn_del_file.setEnabled(True)
-        self.ribbon.btn_rename.setEnabled(True)
+        supports_members = not has_archive or ArchiveEngine.get_format(self.current_archive_path) != 'GZ'
+        self.ribbon.btn_add_file.setEnabled(supports_members)
+        self.ribbon.btn_del_file.setEnabled(supports_members)
+        self.ribbon.btn_rename.setEnabled(supports_members)
         self.ribbon.btn_clip_copy.setEnabled(True)
-        self.ribbon.btn_clip_paste.setEnabled(True)
+        self.ribbon.btn_clip_paste.setEnabled(supports_members)
         self.ribbon.btn_clip_path.setEnabled(True)
         self.ribbon.btn_comment.setEnabled(True)
 
@@ -325,6 +337,7 @@ class MainWindow(QMainWindow):
         try:
             items = ArchiveEngine.list_items(archive_path, password=password)
             self.current_archive_path = archive_path
+            self.current_archive_password = password
             self.archive_items = items
             self.archive_view.set_items(items)
             self._update_ui_state(has_archive=True)
@@ -360,11 +373,12 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(tr('이미 열려 있는 아카이브가 없습니다.'), 2000)
             return
         self.current_archive_path = ""
+        self.current_archive_password = None
         self.archive_items = []
         self._update_ui_state(has_archive=False)
 
     def _on_open_archive_dialog(self):
-        filters = tr("지원하는 모든 아카이브 (*.zip *.7z *.tar *.tgz *.tbz2 *.txz);;ZIP 파일 (*.zip);;7Z 파일 (*.7z);;TAR 파일 (*.tar *.tgz);;모든 파일 (*.*)")
+        filters = tr("지원하는 모든 아카이브 (*.zip *.7z *.tar *.tgz *.tbz2 *.txz *.gz);;ZIP 파일 (*.zip);;7Z 파일 (*.7z);;TAR 파일 (*.tar *.tgz);;모든 파일 (*.*)")
         path, _ = QFileDialog.getOpenFileName(self, tr('아카이브 열기'), "", filters)
         if path:
             self.open_archive(path)
@@ -411,9 +425,14 @@ class MainWindow(QMainWindow):
                 QMessageBox.critical(self, tr('삭제 오류'), trf('파일을 삭제할 수 없습니다:\nZXPH0XZ', f'{e}'))
 
     def _on_new_window(self):
-        subprocess.Popen([sys.executable, os.path.abspath("main.py")])
+        if getattr(sys, "frozen", False):
+            subprocess.Popen([sys.executable])
+        else:
+            subprocess.Popen([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "main.py")])
 
     def _on_admin_window(self):
+        if not github_updates_enabled():
+            return
         try:
             ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, f'"{os.path.abspath("main.py")}"', None, 1)
         except Exception as e:
@@ -443,8 +462,13 @@ class MainWindow(QMainWindow):
                 prog_dlg.reject()
                 QMessageBox.critical(self, tr('압축 실패'), trf('압축 작업 중 오류가 발생했습니다:\nZXPH0XZ', f'{err}'))
 
+            def on_cancelled():
+                prog_dlg.reject()
+                self.statusBar().showMessage(tr('사용자가 압축을 취소했습니다.'), 4000)
+
             worker.finished.connect(on_finish)
             worker.error.connect(on_error)
+            worker.cancelled.connect(on_cancelled)
             worker.start()
             prog_dlg.exec()
 
@@ -473,6 +497,7 @@ class MainWindow(QMainWindow):
             worker = ExtractWorker(
                 self.current_archive_path,
                 dest_dir,
+                password=self.current_archive_password,
                 smart_extract=smart,
                 selected_items=selected_items
             )
@@ -480,7 +505,9 @@ class MainWindow(QMainWindow):
             worker.progress.connect(prog_dlg.update_progress)
             prog_dlg.cancelled.connect(worker.cancel)
 
-            def on_finish(final_dir):
+            def on_finish(final_dir, password=None):
+                if password is not None:
+                    self.current_archive_password = password
                 prog_dlg.accept()
                 QMessageBox.information(self, tr('완료'), trf('압축 해제가 완료되었습니다:\nZXPH0XZ', f'{final_dir}'))
                 if open_folder and os.path.exists(final_dir):
@@ -488,7 +515,7 @@ class MainWindow(QMainWindow):
 
             def on_error(err):
                 prog_dlg.reject()
-                if any(k in err.lower() for k in ["password", "암호"]):
+                if self._is_password_error(err):
                     pw_dlg = PasswordDialog(self, title=tr("보안 암호 입력"))
                     if pw_dlg.exec():
                         pw = pw_dlg.get_password()
@@ -499,17 +526,64 @@ class MainWindow(QMainWindow):
                             smart_extract=smart,
                             selected_items=selected_items
                         )
-                        worker_retry.finished.connect(on_finish)
+                        worker_retry.finished.connect(lambda path: on_finish(path, pw))
                         worker_retry.error.connect(on_error)
+                        worker_retry.cancelled.connect(on_cancelled)
+                        prog_dlg.cancelled.connect(worker_retry.cancel)
                         worker_retry.start()
                         prog_dlg.exec()
                         return
                 QMessageBox.critical(self, tr('압축 풀기 실패'), trf('압축 해제 중 오류 발생:\nZXPH0XZ', f'{err}'))
 
-            worker.finished.connect(on_finish)
+            def on_cancelled():
+                prog_dlg.reject()
+                self.statusBar().showMessage(tr('사용자가 압축 해제를 취소했습니다.'), 4000)
+
+            worker.finished.connect(lambda path: on_finish(path, self.current_archive_password))
             worker.error.connect(on_error)
+            worker.cancelled.connect(on_cancelled)
             worker.start()
             prog_dlg.exec()
+
+    @staticmethod
+    def _is_password_error(error: str) -> bool:
+        lowered = str(error).lower()
+        return any(token in lowered for token in ('password', 'encrypted', '암호'))
+
+    def _start_archive_operation(self, operation, title: str, on_success, error_title: str = None):
+        def launch(password, allow_prompt=True):
+            progress = ProgressDialog(title, self)
+            progress.cancel_btn.hide()
+            progress.prog_bar.setRange(0, 0)
+            progress.status_lbl.setText(tr('아카이브를 처리하고 있습니다...'))
+            worker = ArchiveEditWorker(lambda: operation(password))
+            self._archive_operation_worker = worker
+
+            def completed(result):
+                progress.accept()
+                if self._archive_operation_worker is worker:
+                    self._archive_operation_worker = None
+                if password is not None:
+                    self.current_archive_password = password
+                on_success(result, password)
+
+            def failed(message):
+                progress.reject()
+                if self._archive_operation_worker is worker:
+                    self._archive_operation_worker = None
+                if allow_prompt and self._is_password_error(message):
+                    password_dialog = PasswordDialog(self, title=tr('보안 암호 입력'))
+                    if password_dialog.exec():
+                        launch(password_dialog.get_password(), allow_prompt=False)
+                    return
+                QMessageBox.warning(self, error_title or tr('오류'), str(message))
+
+            worker.completed.connect(completed)
+            worker.error.connect(failed)
+            worker.start()
+            progress.exec()
+
+        launch(self.current_archive_password)
 
     def _on_add_files(self):
         if not self.current_archive_path:
@@ -521,16 +595,35 @@ class MainWindow(QMainWindow):
             if ret == QMessageBox.Yes:
                 self._on_create_archive(is_secure=False)
             return
+        if ArchiveEngine.get_format(self.current_archive_path) == 'GZ':
+            QMessageBox.information(self, tr('안내'), tr('이 파일 형식은 내부 항목 편집을 지원하지 않습니다.'))
+            return
         files, _ = QFileDialog.getOpenFileNames(self, tr('아카이브에 추가할 파일 선택'))
         if not files:
             return
-        QMessageBox.information(self, tr('파일 추가'), trf('선택된 ZXPH0XZ개 파일이 아카이브에 성공적으로 추가되었습니다.', f'{len(files)}'))
+        archive_path = self.current_archive_path
+        member_prefix = self.archive_view.current_prefix
+
+        def added(count, password):
+            self.open_archive(archive_path, password=password)
+            QMessageBox.information(self, tr('파일 추가'), trf('선택된 ZXPH0XZ개 파일이 아카이브에 성공적으로 추가되었습니다.', f'{count}'))
+
+        self._start_archive_operation(
+            lambda password: ArchiveEngine.add_files(
+                archive_path, files, password=password, member_prefix=member_prefix
+            ),
+            tr('아카이브에 파일 추가 중...'), added, tr('파일 추가 실패')
+        )
 
     def _on_delete_items(self):
         if not self.current_archive_path:
             target = self._select_archive_for_tool(tr('편집할 아카이브 열기'))
             if target:
                 self.open_archive(target)
+            if not self.current_archive_path:
+                return
+        if ArchiveEngine.get_format(self.current_archive_path) == 'GZ':
+            QMessageBox.information(self, tr('안내'), tr('이 파일 형식은 내부 항목 편집을 지원하지 않습니다.'))
             return
         sel = self.archive_view.get_selected_items()
         if not sel:
@@ -542,22 +635,47 @@ class MainWindow(QMainWindow):
             QMessageBox.Yes | QMessageBox.No
         )
         if ret == QMessageBox.Yes:
-            QMessageBox.information(self, tr('삭제 완료'), tr('선택 항목이 아카이브 목록에서 제외되었습니다.'))
+            archive_path = self.current_archive_path
+
+            def removed(count, password):
+                self.open_archive(archive_path, password=password)
+                QMessageBox.information(self, tr('삭제 완료'), trf('선택한 ZXPH0XZ개 항목을 삭제했습니다.', f'{count}'))
+
+            self._start_archive_operation(
+                lambda password: ArchiveEngine.remove_items(archive_path, sel, password=password),
+                tr('아카이브 항목 삭제 중...'), removed, tr('삭제 오류')
+            )
 
     def _on_rename_item(self):
         if not self.current_archive_path:
             target = self._select_archive_for_tool(tr('편집할 아카이브 열기'))
             if target:
                 self.open_archive(target)
+            if not self.current_archive_path:
+                return
+        if ArchiveEngine.get_format(self.current_archive_path) == 'GZ':
+            QMessageBox.information(self, tr('안내'), tr('이 파일 형식은 내부 항목 편집을 지원하지 않습니다.'))
             return
         sel = self.archive_view.get_selected_items()
         if not sel:
             QMessageBox.information(self, tr('알림'), tr('이름을 바꿀 항목을 선택해 주세요.'))
             return
-        old_name = os.path.basename(sel[0])
+        if len(sel) != 1:
+            QMessageBox.information(self, tr('알림'), tr('이름을 바꿀 아카이브 항목은 하나만 선택해 주세요.'))
+            return
+        old_name = sel[0].rsplit('/', 1)[-1]
         new_name, ok = QInputDialog.getText(self, tr('이름 바꾸기'), tr('새로운 파일명을 입력하세요:'), text=old_name)
         if ok and new_name.strip():
-            QMessageBox.information(self, tr('완료'), trf("'ZXPH0XZ'이(가) 'ZXPH1XZ'(으)로 변경되었습니다.", f'{old_name}', f'{new_name}'))
+            archive_path = self.current_archive_path
+
+            def renamed(_new_path, password):
+                self.open_archive(archive_path, password=password)
+                QMessageBox.information(self, tr('완료'), trf("'ZXPH0XZ'이(가) 'ZXPH1XZ'(으)로 변경되었습니다.", f'{old_name}', f'{new_name.strip()}'))
+
+            self._start_archive_operation(
+                lambda password: ArchiveEngine.rename_item(archive_path, sel[0], new_name, password=password),
+                tr('아카이브 항목 이름 변경 중...'), renamed, tr('이름 변경 실패')
+            )
 
     def _on_copy_to_clipboard(self):
         if not self.current_archive_path:
@@ -566,17 +684,68 @@ class MainWindow(QMainWindow):
         sel = self.archive_view.get_selected_items()
         if not sel:
             return
-        app_clip = QApplication.clipboard()
-        app_clip.setText("\n".join(sel))
-        self.statusBar().showMessage(trf('ZXPH0XZ개 파일 정보가 클립보드에 복사되었습니다.', f'{len(sel)}'), 3000)
+        archive_path = self.current_archive_path
+        temp_dir = tempfile.mkdtemp(prefix='aurazip_clipboard_')
+
+        def copied(_result, _password):
+            paths = []
+            for member_name in sel:
+                try:
+                    candidate = ArchiveEngine._safe_member_path(temp_dir, member_name)
+                except ValueError:
+                    continue
+                if os.path.exists(candidate):
+                    paths.append(candidate)
+            if not paths:
+                QMessageBox.warning(self, tr('클립보드'), tr('클립보드에서 파일을 찾을 수 없습니다.'))
+                return
+            mime_data = QMimeData()
+            mime_data.setUrls([QUrl.fromLocalFile(path) for path in paths])
+            QApplication.clipboard().setMimeData(mime_data)
+            self.statusBar().showMessage(tr('아카이브 파일을 임시 폴더에 준비했습니다.'), 3000)
+
+        self._start_archive_operation(
+            lambda password: ArchiveEngine.extract(
+                archive_path, temp_dir, password=password, smart_extract=False, selected_items=sel
+            ),
+            tr('클립보드로 복사 중...'), copied, tr('복사 실패')
+        )
 
     def _on_paste_from_clipboard(self):
         clip = QApplication.clipboard()
-        text = clip.text().strip()
-        if text:
-            QMessageBox.information(self, tr('붙여넣기'), trf('클립보드 데이터로부터 항목을 가져왔습니다:\nZXPH0XZ', f'{text[:100]}'))
-        else:
-            QMessageBox.information(self, tr('붙여넣기'), tr('클립보드에 복사된 파일 또는 텍스트가 없습니다.'))
+        paths = [url.toLocalFile() for url in clip.mimeData().urls() if url.isLocalFile()]
+        paths = [os.path.abspath(path) for path in paths if path and os.path.exists(path)]
+        if not paths:
+            text = clip.text().strip()
+            paths = [
+                os.path.abspath(line.strip().strip('"'))
+                for line in text.splitlines()
+                if line.strip().strip('"')
+            ]
+            paths = [path for path in paths if os.path.exists(path)]
+        if not paths:
+            QMessageBox.information(self, tr('붙여넣기'), tr('클립보드에서 파일을 찾을 수 없습니다.'))
+            return
+        if not self.current_archive_path:
+            self._on_create_archive(initial_files=paths)
+            return
+        if ArchiveEngine.get_format(self.current_archive_path) == 'GZ':
+            QMessageBox.information(self, tr('안내'), tr('이 파일 형식은 내부 항목 편집을 지원하지 않습니다.'))
+            return
+
+        archive_path = self.current_archive_path
+        member_prefix = self.archive_view.current_prefix
+
+        def pasted(count, password):
+            self.open_archive(archive_path, password=password)
+            QMessageBox.information(self, tr('붙여넣기'), tr('클립보드 파일을 아카이브에 붙여넣었습니다.'))
+
+        self._start_archive_operation(
+            lambda password: ArchiveEngine.add_files(
+                archive_path, paths, password=password, member_prefix=member_prefix
+            ),
+            tr('클립보드 파일을 붙여넣는 중...'), pasted, tr('붙여넣기 실패')
+        )
 
     def _on_copy_paths_to_clipboard(self):
         if not self.current_archive_path:
@@ -589,12 +758,17 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(tr('내부 경로명이 클립보드에 복사되었습니다.'), 3000)
 
     def _on_invert_selection(self):
-        for row in range(self.archive_view.table.rowCount()):
-            item = self.archive_view.table.item(row, 0)
-            if item:
-                self.archive_view.table.setRangeSelected(
-                    self.archive_view.table.selectRow(row), not item.isSelected()
-                )
+        table = self.archive_view.table
+        selection = table.selectionModel()
+        for row in range(table.rowCount()):
+            item = table.item(row, 0)
+            data = item.data(Qt.UserRole) if item else None
+            if not data or data[0] == '..':
+                continue
+            selection.select(
+                table.model().index(row, 0),
+                QItemSelectionModel.Toggle | QItemSelectionModel.Rows
+            )
 
     def _on_edit_comment(self):
         if not self.current_archive_path:
@@ -617,25 +791,16 @@ class MainWindow(QMainWindow):
         target = self._select_archive_for_tool(tr('무결성을 검사할 아카이브 선택'))
         if not target:
             return
-        prog_dlg = ProgressDialog(tr('무결성 검사(CRC-32) 실행 중...'), self)
-        worker = TestWorker(target)
-        worker.progress.connect(prog_dlg.update_progress)
-
-        def on_finish(ok):
-            prog_dlg.accept()
+        def on_finish(_result, _password):
             QMessageBox.information(
                 self, tr('무결성 검사 완료'),
                 trf("'ZXPH0XZ' 아카이브의 모든 블록 및 CRC-32 검증을 무결하게 통과했습니다.", f'{os.path.basename(target)}')
             )
 
-        def on_error(err):
-            prog_dlg.reject()
-            QMessageBox.critical(self, tr('무결성 검사 실패'), trf('검사 중 손상 또는 오류가 발견되었습니다:\nZXPH0XZ', f'{err}'))
-
-        worker.finished.connect(on_finish)
-        worker.error.connect(on_error)
-        worker.start()
-        prog_dlg.exec()
+        self._start_archive_operation(
+            lambda password: ArchiveEngine.test_integrity(target, password=password),
+            tr('무결성 검사(CRC-32) 실행 중...'), on_finish, tr('무결성 검사 실패')
+        )
 
     def _on_malware_scan(self):
         target = self._select_archive_for_tool(tr('악성코드를 검사할 아카이브 선택'))
@@ -700,9 +865,18 @@ class MainWindow(QMainWindow):
     def _on_image_preview_requested(self, internal_path: str):
         if not self.current_archive_path:
             return
-        data = ArchiveEngine.read_file_bytes(self.current_archive_path, internal_path)
-        if data:
-            self.archive_view.update_image_preview(data, internal_path, len(data))
+        archive_path = self.current_archive_path
+
+        def show_preview(data, _password):
+            if data:
+                self.archive_view.update_image_preview(data, internal_path, len(data))
+            else:
+                self.archive_view.clear_image_preview(tr('미리보기를 불러올 수 없습니다.'))
+
+        self._start_archive_operation(
+            lambda password: ArchiveEngine.read_file_bytes(archive_path, internal_path, password=password),
+            tr('이미지 미리보기를 불러오는 중...'), show_preview, tr('미리보기 실패')
+        )
 
     def _on_toggle_always_on_top(self):
         is_on_top = bool(self.windowFlags() & Qt.WindowStaysOnTopHint)
@@ -717,7 +891,8 @@ class MainWindow(QMainWindow):
         dlg.exec()
 
     def _on_open_install_dir(self):
-        install_dir = os.path.dirname(os.path.abspath(__file__))
+        executable_path = sys.executable if getattr(sys, "frozen", False) else __file__
+        install_dir = os.path.dirname(os.path.abspath(executable_path))
         os.startfile(install_dir)
 
     def _on_open_help_page(self):
@@ -726,19 +901,22 @@ class MainWindow(QMainWindow):
     def _on_item_double_clicked(self, internal_path: str, is_dir: bool):
         if is_dir:
             return
-        try:
-            temp_dir = tempfile.mkdtemp(prefix="aurazip_view_")
-            ArchiveEngine.extract(
-                self.current_archive_path,
-                temp_dir,
-                smart_extract=False,
-                selected_items=[internal_path]
-            )
-            extracted_file = os.path.join(temp_dir, internal_path)
-            if os.path.exists(extracted_file):
+        archive_path = self.current_archive_path
+        temp_dir = tempfile.mkdtemp(prefix='aurazip_view_')
+
+        def open_extracted(_result, _password):
+            extracted_file = os.path.join(temp_dir, *internal_path.replace('\\', '/').split('/'))
+            if os.path.isfile(extracted_file):
                 os.startfile(extracted_file)
-        except Exception as e:
-            QMessageBox.warning(self, tr('열기 실패'), trf('파일을 열 수 없습니다:\nZXPH0XZ', f'{e}'))
+            else:
+                QMessageBox.warning(self, tr('열기 실패'), tr('미리보기를 불러올 수 없습니다.'))
+
+        self._start_archive_operation(
+            lambda password: ArchiveEngine.extract(
+                archive_path, temp_dir, password=password, smart_extract=False, selected_items=[internal_path]
+            ),
+            tr('아카이브 파일을 여는 중...'), open_extracted, tr('열기 실패')
+        )
 
     def _show_about(self):
         AboutDialog(self).exec()

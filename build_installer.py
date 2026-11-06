@@ -22,7 +22,9 @@ def main():
     spec_file = os.path.join(BASE_DIR, "AuraZip.spec")
     cmd_pyinstaller = [sys.executable, "-m", "PyInstaller", spec_file, "--noconfirm", "--clean"]
     
-    ret = subprocess.run(cmd_pyinstaller, cwd=BASE_DIR)
+    build_env = os.environ.copy()
+    build_env["AURAZIP_BUILD_CHANNEL"] = "github"
+    ret = subprocess.run(cmd_pyinstaller, cwd=BASE_DIR, env=build_env)
     if ret.returncode != 0:
         print("[ERROR] PyInstaller build failed!")
         sys.exit(ret.returncode)

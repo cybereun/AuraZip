@@ -190,7 +190,10 @@ class CreateDialog(QDialog):
         fmt_layout = QVBoxLayout()
         fmt_layout.addWidget(QLabel(tr('포맷:')))
         self.fmt_combo = QComboBox()
-        self.fmt_combo.addItems([tr('ZIP (범용 호환)'), tr('7Z (초고압축)'), tr('TAR (단순 보관)'), "TGZ (Gzip)"])
+        self.fmt_combo.addItems([
+            tr('ZIP (범용 호환)'), tr('7Z (초고압축)'), tr('TAR (단순 보관)'),
+            'TGZ (Gzip)', tr('GZ (단일 파일)')
+        ])
         self.fmt_combo.currentIndexChanged.connect(self._on_format_changed)
         fmt_layout.addWidget(self.fmt_combo)
         opt_layout.addLayout(fmt_layout, 2)
@@ -205,7 +208,8 @@ class CreateDialog(QDialog):
 
         # Security
         sec_layout = QVBoxLayout()
-        sec_layout.addWidget(QLabel(tr('보안 암호 (AES-256):')))
+        self.password_label = QLabel(tr('보안 암호 (AES-256):'))
+        sec_layout.addWidget(self.password_label)
         self.pw_edit = QLineEdit()
         self.pw_edit.setEchoMode(QLineEdit.Password)
         self.pw_edit.setPlaceholderText(tr('미설정 시 암호 없음'))
@@ -232,18 +236,26 @@ class CreateDialog(QDialog):
 
         if initial_secure:
             self.pw_edit.setFocus()
+        self._on_format_changed(self.fmt_combo.currentIndex())
 
     def _on_format_changed(self, idx):
         cur_path = self.dest_edit.text()
-        exts = [".zip", ".7z", ".tar", ".tgz"]
+        exts = [".zip", ".7z", ".tar", ".tgz", ".gz"]
         target_ext = exts[idx]
         base, _ = os.path.splitext(cur_path)
         if base.lower().endswith('.tar'):
             base = os.path.splitext(base)[0]
         self.dest_edit.setText(base + target_ext)
+        encryption_supported = idx in (0, 1)
+        self.pw_edit.setEnabled(encryption_supported)
+        self.password_label.setText(
+            tr('보안 암호 (AES-256):') if encryption_supported else tr('암호화 미지원 형식')
+        )
+        if not encryption_supported:
+            self.pw_edit.clear()
 
     def _browse_save(self):
-        ext_filters = tr("ZIP 아카이브 (*.zip);;7Z 아카이브 (*.7z);;TAR 아카이브 (*.tar);;TGZ 아카이브 (*.tgz);;모든 파일 (*.*)")
+        ext_filters = tr("ZIP 아카이브 (*.zip);;7Z 아카이브 (*.7z);;TAR 아카이브 (*.tar);;TGZ 아카이브 (*.tgz);;GZ 파일 (*.gz);;모든 파일 (*.*)")
         path, _ = QFileDialog.getSaveFileName(self, tr('아카이브 저장 위치'), self.dest_edit.text(), ext_filters)
         if path:
             self.dest_edit.setText(path)
@@ -277,6 +289,14 @@ class CreateDialog(QDialog):
         if not dest:
             QMessageBox.warning(self, tr('알림'), tr('저장할 압축 파일 위치를 지정해 주세요.'))
             return
+        if self.get_format() == 'GZ':
+            sources = self.get_source_paths()
+            if len(sources) != 1 or not os.path.isfile(sources[0]):
+                QMessageBox.warning(
+                    self, tr('알림'),
+                    tr('GZ 형식은 일반 파일 하나만 압축할 수 있습니다. 폴더나 여러 파일은 ZIP을 사용하세요.')
+                )
+                return
         self.accept()
 
     def get_dest_path(self) -> str:
@@ -286,7 +306,7 @@ class CreateDialog(QDialog):
         return [self.file_list.item(i).text() for i in range(self.file_list.count())]
 
     def get_format(self) -> str:
-        return ["ZIP", "7Z", "TAR", "TGZ"][self.fmt_combo.currentIndex()]
+        return ["ZIP", "7Z", "TAR", "TGZ", "GZ"][self.fmt_combo.currentIndex()]
 
     def get_level(self) -> int:
         levels = [5, 1, 9, 0]

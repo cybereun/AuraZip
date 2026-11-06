@@ -1,0 +1,58 @@
+name: Build MSIX (no Store submission)
+
+on:
+  workflow_dispatch:
+    inputs:
+      identity_name:
+        description: 'Partner Center Package/Identity/Name (leave all fields empty for a test identity)'
+        required: false
+        type: string
+      publisher:
+        description: 'Partner Center Package/Identity/Publisher'
+        required: false
+        type: string
+      publisher_display_name:
+        description: 'Partner Center PublisherDisplayName'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: 'x64'
+          cache: pip
+      - name: Install build dependencies
+        run: python -m pip install -r requirements.txt pyinstaller
+      - name: Build unsigned MSIX
+        shell: pwsh
+        env:
+          MSIX_IDENTITY_NAME: ${{ inputs.identity_name }}
+          MSIX_PUBLISHER: ${{ inputs.publisher }}
+          MSIX_DISPLAY_NAME: ${{ inputs.publisher_display_name }}
+        run: |
+          $fields = @($env:MSIX_IDENTITY_NAME, $env:MSIX_PUBLISHER, $env:MSIX_DISPLAY_NAME)
+          $present = @($fields | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }).Count
+          if ($present -eq 0) {
+            python build_msix.py --build --test-identity
+          } elseif ($present -eq 3) {
+            $config = @{ identity_name=$env:MSIX_IDENTITY_NAME; publisher=$env:MSIX_PUBLISHER; publisher_display_name=$env:MSIX_DISPLAY_NAME }
+            $config | ConvertTo-Json | Set-Content -Encoding utf8 msix/identity.local.json
+            python build_msix.py --build
+          } else {
+            throw 'Enter all three Partner Center identity values, or leave all three empty for a test build.'
+          }
+          if ($LASTEXITCODE -ne 0) { throw "MSIX build failed (exit $LASTEXITCODE)" }
+      - name: Upload unsigned package
+        uses: actions/upload-artifact@v4
+        with:
+          name: AuraZip-MSIX-unsigned
+          path: dist_msix/*.msix
+          if-no-files-found: error

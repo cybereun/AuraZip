@@ -81,6 +81,11 @@ HELP_DOCS = {
                         <td style="padding: 8px 10px;">Gzip + Tar</td>
                         <td style="padding: 8px 10px;">Linux/Unix 개발 환경 표준 배포 아카이브</td>
                     </tr>
+                    <tr style="border-bottom: 1px solid #E2E8F0;">
+                        <td style="padding: 8px 10px;"><b>GZ</b></td>
+                        <td style="padding: 8px 10px;">Gzip</td>
+                        <td style="padding: 8px 10px;">단일 파일을 압축하는 스트림 형식</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -200,7 +205,7 @@ HELP_DOCS = {
             <div style="margin-bottom: 16px;">
                 <h4 style="color: #0F172A; margin: 0 0 4px 0;">Q. 압축 파일 내의 개별 파일만 추가하거나 삭제할 수 있나요?</h4>
                 <p style="margin: 0; color: #475569;">
-                    A. 네, 상단 [편집] 탭의 [파일 추가(Ins)], [파일 삭제(Del)], [이름 바꾸기(F2)] 기능을 통해 아카이브 전체를 풀지 않고도 내부 내용을 손쉽게 편집할 수 있습니다.
+                    A. 네, 상단 [편집] 탭의 [파일 추가(Ins)], [파일 삭제(Del)], [이름 바꾸기(F2)] 기능으로 내부 항목을 편집할 수 있습니다. 변경을 저장할 때 아카이브를 다시 구성하므로 큰 파일은 시간이 걸릴 수 있습니다. 단일 파일 형식인 GZ는 내부 항목 편집을 지원하지 않습니다.
                 </p>
             </div>
         </div>

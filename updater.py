@@ -16,6 +16,7 @@ from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QIcon, QFont, QPixmap
 
 from version import APP_NAME, APP_VERSION, GITHUB_API_LATEST
+from distribution import github_updates_enabled, distribution_channel
 
 
 def parse_version(v_str: str):
@@ -332,6 +333,8 @@ class UpdateDialog(QDialog):
         layout.addLayout(btn_layout)
 
     def _start_download(self):
+        if not github_updates_enabled():
+            return
         download_url = self.update_info.get("download_url")
         if not download_url:
             # Fallback: Open browser if no direct .exe asset
@@ -368,6 +371,8 @@ class UpdateDialog(QDialog):
             self.status_lbl.setText(trf('다운로드 중: ZXPH0XZ MB', f'{mb_down:.1f}'))
 
     def _on_finished(self, target_path):
+        if not github_updates_enabled():
+            return
         self.status_lbl.setText(tr('다운로드 완료! 설치 프로그램을 시작하고 AuraZip을 재시작합니다...'))
         self.progress_bar.setValue(100)
 
@@ -398,6 +403,14 @@ class AutoUpdater:
         self.check_thread = None
 
     def check(self, silent=True):
+        if not github_updates_enabled():
+            if not silent:
+                if distribution_channel() == 'store':
+                    message = tr('이 버전은 Microsoft Store에서 업데이트합니다. Microsoft Store의 라이브러리에서 업데이트를 확인하세요.')
+                else:
+                    message = tr('배포판 정보를 확인할 수 없어 자동 업데이트를 사용할 수 없습니다.')
+                QMessageBox.information(self.parent, tr('업데이트 확인'), message)
+            return
         self.silent = silent
         self.check_thread = CheckUpdateThread(self.parent)
         self.check_thread.update_found.connect(self._on_update_found)

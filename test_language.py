@@ -61,6 +61,20 @@ class LanguageTests(unittest.TestCase):
                 ArchiveEngine.extract(archive, target, smart_extract=False)
                 self.assertEqual(Path(target, 'example.txt').read_text(encoding='utf-8'), 'AuraZip')
 
+    def test_7z_operations_in_both_languages(self):
+        source = Path(self.temp.name, 'example-7z.txt')
+        source.write_text('AuraZip 7z', encoding='utf-8')
+        archive = str(Path(self.temp.name, 'example.7z'))
+        for language in ('ko', 'en'):
+            with self.subTest(language=language):
+                translations.set_language(language)
+                ArchiveEngine.create(archive, [str(source)], fmt='7Z')
+                self.assertTrue(ArchiveEngine.list_items(archive))
+                self.assertTrue(ArchiveEngine.test_integrity(archive))
+                target = str(Path(self.temp.name, 'out-7z-' + language))
+                ArchiveEngine.extract(archive, target, smart_extract=False)
+                self.assertEqual(Path(target, source.name).read_text(encoding='utf-8'), 'AuraZip 7z')
+
 
 if __name__ == '__main__':
     unittest.main()

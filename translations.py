@@ -1,9 +1,46 @@
 """Offline translations for the AuraZip interface."""
 from PySide6.QtCore import QSettings
+from distribution import github_updates_enabled
+from app_settings import store_settings
 import re
 
 EN = {"'ZXPH0XZ' 아카이브의 모든 블록 및 CRC-32 검증을 무결하게 통과했습니다.": "All blocks and CRC-32 verification of the 'ZXPH0XZ' archive "
                                                     'passed flawlessly.',
+ 'GZ (단일 파일)': 'GZ (single file)',
+ 'GZ 형식은 일반 파일 하나만 압축할 수 있습니다. 폴더나 여러 파일은 ZIP을 사용하세요.': 'GZ can compress one regular file only. Use ZIP for folders or multiple files.',
+ '암호화 미지원 형식': 'Encryption is not supported by this format',
+ '이 형식은 암호화를 지원하지 않습니다. ZIP 또는 7Z를 선택하세요.': 'This format does not support encryption. Choose ZIP or 7Z.',
+'압축 파일을 압축 대상에 포함할 수 없습니다. 다른 저장 위치를 선택하세요.': 'The archive cannot also be used as an input file. Choose a different output location.',
+ 'ZIP 암호화 모듈을 사용할 수 없어 암호화된 파일을 만들 수 없습니다.': 'The ZIP encryption module is unavailable, so an encrypted archive cannot be created.',
+ '지원하지 않는 아카이브 형식입니다: ZXPH0XZ': 'Unsupported archive format: ZXPH0XZ',
+ '아카이브 내부 경로가 올바르지 않습니다.': 'The path inside the archive is invalid.',
+ '이 파일 형식은 내부 항목 편집을 지원하지 않습니다.': 'This file format does not support editing internal items.',
+ '아카이브를 처리하고 있습니다...': 'Processing the archive...',
+ '아카이브에 파일 추가 중...': 'Adding files to the archive...',
+ '파일 추가 실패': 'Failed to add files',
+ '아카이브 항목 삭제 중...': 'Deleting archive items...',
+ '아카이브 항목 이름 변경 중...': 'Renaming archive item...',
+ '이름 변경 실패': 'Failed to rename item',
+ '클립보드': 'Clipboard',
+ '복사 실패': 'Copy failed',
+ '클립보드로 복사 중...': 'Copying to the clipboard...',
+ '클립보드 파일을 붙여넣는 중...': 'Pasting clipboard files...',
+ '붙여넣기 실패': 'Paste failed',
+ '이미지 미리보기를 불러오는 중...': 'Loading image preview...',
+ '미리보기 실패': 'Preview failed',
+ '아카이브 파일을 여는 중...': 'Opening archive item...',
+ '아카이브 항목을 처리할 수 없습니다.': 'Could not process the archive item.',
+ '지원하는 모든 아카이브 (*.zip *.7z *.tar *.tgz *.tbz2 *.txz *.gz);;ZIP 파일 (*.zip);;7Z 파일 (*.7z);;TAR 파일 (*.tar *.tgz);;모든 파일 (*.*)': 'Supported archives (*.zip *.7z *.tar *.tgz *.tbz2 *.txz *.gz);;ZIP files (*.zip);;7Z files (*.7z);;TAR files (*.tar *.tgz);;All files (*.*)',
+ 'ZIP 아카이브 (*.zip);;7Z 아카이브 (*.7z);;TAR 아카이브 (*.tar);;TGZ 아카이브 (*.tgz);;GZ 파일 (*.gz);;모든 파일 (*.*)': 'ZIP archives (*.zip);;7Z archives (*.7z);;TAR archives (*.tar);;TGZ archives (*.tgz);;GZ files (*.gz);;All files (*.*)',
+ '추가할 파일을 찾을 수 없습니다: ZXPH0XZ': 'Could not find the file to add: ZXPH0XZ',
+ '새 이름에는 파일명으로 사용할 수 없는 문자가 있습니다.': 'The new name contains characters that are not allowed in file names.',
+ '이름을 바꿀 항목을 찾을 수 없습니다.': 'Could not find the item to rename.',
+ '같은 이름의 항목이 이미 있습니다.': 'An item with that name already exists.',
+ '이름을 바꿀 아카이브 항목은 하나만 선택해 주세요.': 'Select only one archive item to rename.',
+ '선택한 ZXPH0XZ개 항목을 삭제했습니다.': 'Deleted ZXPH0XZ selected archive items.',
+ '클립보드에서 파일을 찾을 수 없습니다.': 'No files were found on the clipboard.',
+ '클립보드 파일을 아카이브에 붙여넣었습니다.': 'Clipboard files were added to the archive.',
+ '클립보드 파일을 임시 폴더에 준비했습니다.': 'Archive files were prepared in a temporary folder for the clipboard.',
  "'ZXPH0XZ' 파일은 아카이브 형식이 아닙니다.\n이 파일을 새로 압축하시겠습니까?": "The file 'ZXPH0XZ' is not in archive format.\n"
                                                      'Would you like to recompress this file?',
  "'ZXPH0XZ'이(가) 'ZXPH1XZ'(으)로 변경되었습니다.": "'ZXPH0XZ' has been changed to 'ZXPH1XZ'.",
@@ -564,6 +601,8 @@ EN = {"'ZXPH0XZ' 아카이브의 모든 블록 및 CRC-32 검증을 무결하게
  '🛡️ 전문 보안 & 검사 도구': '🛡️ Professional security & scanning tools'}
 
 EN.update({
+    '이 버전은 Microsoft Store에서 업데이트합니다. Microsoft Store의 라이브러리에서 업데이트를 확인하세요.': 'This version is updated through Microsoft Store. Check for updates in the Microsoft Store library.',
+    '배포판 정보를 확인할 수 없어 자동 업데이트를 사용할 수 없습니다.': 'Updates are unavailable because the distribution channel could not be verified.',
     '언어 / Language': 'Language',
     '압축 실행': 'Create archive',
     '생성할 압축 파일 위치': 'Archive destination',
@@ -602,9 +641,46 @@ EN.update({
     '지원하는 모든 아카이브 (*.zip *.7z *.tar *.tgz *.tbz2 *.txz);;ZIP 파일 (*.zip);;7Z 파일 (*.7z);;TAR 파일 (*.tar *.tgz);;모든 파일 (*.*)': 'Supported archives (*.zip *.7z *.tar *.tgz *.tbz2 *.txz);;ZIP files (*.zip);;7Z files (*.7z);;TAR files (*.tar *.tgz);;All files (*.*)',
     '지원하는 모든 아카이브 (*.zip *.7z *.tar *.tgz *.gz *.tbz2 *.txz);;모든 파일 (*.*)': 'Supported archives (*.zip *.7z *.tar *.tgz *.gz *.tbz2 *.txz);;All files (*.*)',
     'ZIP 아카이브 (*.zip);;7Z 아카이브 (*.7z);;TAR 아카이브 (*.tar);;TGZ 아카이브 (*.tgz);;모든 파일 (*.*)': 'ZIP archives (*.zip);;7Z archives (*.7z);;TAR archives (*.tar);;TGZ archives (*.tgz);;All files (*.*)',
+    '검사할 파일을 찾을 수 없습니다.': 'The file to scan could not be found.',
+    'Defender로 아카이브 파일을 검사합니다. 검사 결과는 안전을 보증하지 않습니다.': 'Defender will scan the archive file. A scan result does not guarantee safety.',
+    '🛡️ Windows Defender 파일 검사': '🛡️ Windows Defender file scan',
+    'Windows Defender 검사 도구를 사용할 수 없습니다.': 'The Windows Defender scanning tool is unavailable.',
+    'Windows Defender 검사에 실패했습니다: ZXPH0XZ': 'Windows Defender scan failed: ZXPH0XZ',
+    'Windows Defender 검사 중 예기치 않은 오류가 발생했습니다: ZXPH0XZ': 'An unexpected error occurred during the Windows Defender scan: ZXPH0XZ',
+    'Defender 검사가 완료되었습니다. 종료 코드 0은 위협이 없었거나 위협이 제거되었음을 뜻할 수 있습니다. 안전 판정으로 간주하지 말고 Windows 보안의 보호 기록을 확인하세요.': 'Defender finished scanning. Exit code 0 can mean no threat was found or that a threat was remediated. This is not a safety verdict; check Windows Security Protection History.',
+    'Defender가 미조치 위협, 추가 조치 필요 또는 검사 오류를 보고했습니다. Windows 보안의 보호 기록과 Defender 로그를 확인하세요.': 'Defender reported an unremediated threat, required action, or a scan error. Check Windows Security Protection History and Defender logs.',
+    'Defender 검사에 실패했습니다 (종료 코드 ZXPH0XZ). ZXPH1XZ': 'Defender scan failed (exit code ZXPH0XZ). ZXPH1XZ',
+    'Defender 검사 완료': 'Defender scan completed',
+    'Defender 검사 결과 확인 필요': 'Defender scan needs review',
+    '이 형식의 복구는 지원하지 않습니다. ZIP에서 읽을 수 있는 항목만 부분 복구할 수 있습니다.': 'Repair is not supported for this format. Only readable entries from ZIP files can be partially recovered.',
+    '복구할 파일을 찾을 수 없습니다.': 'The file to repair could not be found.',
+    '복구 결과 파일이 이미 있습니다. 덮어쓰지 않았습니다: ZXPH0XZ': 'The recovery output already exists and was not overwritten: ZXPH0XZ',
+    '읽을 수 있는 ZIP 항목 ZXPH0XZ개를 새 파일로 저장했습니다. 제외된 항목: ZXPH1XZ개.\n이 기능은 손상된 중앙 디렉터리나 압축 스트림 자체를 복원하지 않습니다.\n\nZXPH2XZ': 'Saved ZXPH0XZ readable ZIP entries to a new file. Skipped entries: ZXPH1XZ.\nThis feature does not reconstruct a damaged central directory or compressed stream.\n\nZXPH2XZ',
+    '읽을 수 있는 ZIP 항목이 없어 복구 결과를 만들지 않았습니다.': 'No recovery output was created because no ZIP entries could be read.',
+    '복구 결과 검증에 실패했습니다: ZXPH0XZ': 'Recovery output validation failed: ZXPH0XZ',
+    'ZIP 중앙 디렉터리를 읽을 수 있는 경우 CRC 검증을 통과한 항목만 새 파일로 부분 복구합니다. 7Z/TAR 복구와 손상된 중앙 디렉터리 또는 압축 데이터 복원은 지원하지 않습니다.': 'If the ZIP central directory is readable, only entries that pass CRC validation are partially recovered into a new file. 7Z/TAR recovery and reconstruction of damaged central directories or compressed data are not supported.',
+    '암호화된 ZIP 또는 7Z에서 입력한 후보 암호를 검증합니다. 후보 목록 검색이며 암호 해독을 보장하지 않습니다:': 'Checks candidate passwords against encrypted ZIP or 7Z archives. This searches only the supplied list and cannot guarantee recovery:',
+    '부분 복구 완료': 'Partial recovery completed',
+    '복구할 수 없음': 'Recovery unavailable',
+    '복구하지 못했습니다: ZXPH0XZ': 'Could not recover the archive: ZXPH0XZ',
+    '이 ZIP은 암호화되지 않았습니다.': 'This ZIP is not encrypted.',
+    'AES ZIP 암호 검증 모듈을 사용할 수 없습니다.': 'The AES ZIP password verification module is unavailable.',
+    'ZIP 아카이브를 읽을 수 없습니다: ZXPH0XZ': 'Could not read ZIP archive: ZXPH0XZ',
+    '7Z 암호 검증 모듈을 사용할 수 없습니다.': 'The 7Z password verification module is unavailable.',
+    '7Z 아카이브를 확인할 수 없습니다: ZXPH0XZ': 'Could not inspect 7Z archive: ZXPH0XZ',
+    '이 7Z는 암호화되지 않았습니다.': 'This 7Z archive is not encrypted.',
+    '암호 복구는 암호화된 ZIP 또는 7Z만 지원합니다.': 'Password recovery supports encrypted ZIP or 7Z archives only.',
+    '지원하지 않는 암호 복구 대상: ZXPH0XZ': 'Unsupported password recovery target: ZXPH0XZ',
+    '지원하지 않음': 'Unsupported',
+    '아카이브를 확인할 수 없습니다: ZXPH0XZ': 'Could not inspect the archive: ZXPH0XZ',
+    '암호 검사를 시작할 수 없습니다: ZXPH0XZ': 'Could not start password verification: ZXPH0XZ',
+    '후보 암호가 아카이브 내용을 검증하지 못했습니다. 이는 암호를 찾지 못했다는 뜻이며, 복구 불가능하다는 의미는 아닙니다.': 'None of the candidate passwords validated the archive contents. This only means no candidate matched; it does not mean the password cannot be recovered.',
+    '입력된 후보 중 아카이브 내용을 정상 검증한 암호가 없습니다.': 'None of the supplied candidates successfully validated the archive contents.',
+    '후보 확인 결과': 'Candidate check result',
 })
 
-_language = QSettings("AuraStudios", "AuraZip").value("language", "ko")
+_settings = QSettings("AuraStudios", "AuraZip") if github_updates_enabled() else store_settings()
+_language = _settings.value("language", "ko")
 
 def set_language(language):
     global _language
