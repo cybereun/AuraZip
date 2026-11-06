@@ -31,8 +31,8 @@
 
 | 패키지 형태 | 파일명 | 용량 | 특징 및 권장 사용자 | 다운로드 |
 |---|---|---|---|:---:|
-| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.6.exe` | 약 47.5 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.6/AuraZip_Setup_v1.0.6.exe) |
-| **무설치 포터블** | `AuraZip_Portable_v1.0.6.zip` | 약 68.1 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.6/AuraZip_Portable_v1.0.6.zip) |
+| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.6.exe` | 약 39.6 MB | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.6/AuraZip_Setup_v1.0.6.exe) |
+| **무설치 포터블** | `AuraZip_Portable_v1.0.6.zip` | 약 55.4 MB | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.6/AuraZip_Portable_v1.0.6.zip) |
 
 ---
 
