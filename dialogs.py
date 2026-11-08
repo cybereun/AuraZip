@@ -3,7 +3,8 @@ import os
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QCheckBox, QFileDialog, QComboBox, QListWidget, QListWidgetItem,
-    QProgressBar, QGroupBox, QMessageBox, QFrame, QRadioButton, QButtonGroup
+    QProgressBar, QGroupBox, QMessageBox, QFrame, QRadioButton, QButtonGroup,
+    QPlainTextEdit
 )
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon, QPixmap
@@ -369,7 +370,7 @@ class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(tr('AuraZip 정보'))
-        self.setFixedSize(500, 340)
+        self.setFixedSize(500, 380)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         layout = QVBoxLayout(self)
@@ -409,6 +410,9 @@ class AboutDialog(QDialog):
         layout.addStretch()
 
         btn_box = QHBoxLayout()
+        licenses_btn = QPushButton(tr('오픈소스 라이선스'))
+        licenses_btn.clicked.connect(self._show_licenses)
+        btn_box.addWidget(licenses_btn)
         btn_box.addStretch()
         ok_btn = QPushButton(tr('확인'))
         ok_btn.setObjectName("PrimaryBtn")
@@ -416,3 +420,31 @@ class AboutDialog(QDialog):
         ok_btn.clicked.connect(self.accept)
         btn_box.addWidget(ok_btn)
         layout.addLayout(btn_box)
+
+    def _show_licenses(self):
+        notice_path = os.path.join(os.path.dirname(__file__), "licenses", "THIRD_PARTY_NOTICES.txt")
+        if not os.path.isfile(notice_path):
+            QMessageBox.information(
+                self,
+                tr('오픈소스 라이선스'),
+                tr('라이선스 고지 파일을 찾을 수 없습니다. 패키지 배포본에 포함된 licenses 폴더를 확인하세요.'),
+            )
+            return
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle(tr('오픈소스 라이선스'))
+        dialog.resize(820, 620)
+        dialog.setWindowFlags(dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        layout = QVBoxLayout(dialog)
+        text_view = QPlainTextEdit(dialog)
+        text_view.setReadOnly(True)
+        with open(notice_path, "r", encoding="utf-8") as notice_file:
+            text_view.setPlainText(notice_file.read())
+        layout.addWidget(text_view)
+        button_box = QHBoxLayout()
+        button_box.addStretch()
+        close_button = QPushButton(tr('닫기'))
+        close_button.clicked.connect(dialog.accept)
+        button_box.addWidget(close_button)
+        layout.addLayout(button_box)
+        dialog.exec()

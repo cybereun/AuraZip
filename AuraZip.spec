@@ -3,6 +3,11 @@ import os
 import sys
 import json
 
+project_root = os.path.abspath(SPECPATH)
+sys.path.insert(0, project_root)
+from license_bundle import create_license_bundle
+from packaging_support import filter_qt_virtual_keyboard
+
 channel = os.environ.get('AURAZIP_BUILD_CHANNEL', 'github')
 if channel not in ('github', 'store'):
     raise ValueError('AURAZIP_BUILD_CHANNEL must be github or store')
@@ -11,6 +16,11 @@ os.makedirs(metadata_dir, exist_ok=True)
 metadata_file = os.path.join(metadata_dir, 'distribution.json')
 with open(metadata_file, 'w', encoding='utf-8') as f:
     json.dump({'channel': channel}, f)
+
+license_notice = create_license_bundle(
+    os.path.join(project_root, 'build', 'generated_licenses', 'THIRD_PARTY_NOTICES.txt'),
+    project_root=project_root,
+)
 
 block_cipher = None
 
@@ -21,6 +31,7 @@ a = Analysis(
     datas=[
         ('assets', 'assets'),
         (metadata_file, 'build_metadata'),
+        (license_notice, 'licenses'),
     ],
     hiddenimports=[
         'py7zr',
@@ -46,6 +57,13 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
+# Qt Virtual Keyboard is GPL-only in Qt's community edition and AuraZip does
+# not use it. Remove its DLL/plugin from all PyInstaller collections.
+a.binaries = filter_qt_virtual_keyboard(a.binaries)
+a.datas = filter_qt_virtual_keyboard(a.datas)
+a.zipfiles = filter_qt_virtual_keyboard(a.zipfiles)
+a.pure = filter_qt_virtual_keyboard(a.pure)
 
 # Qt uses the Windows system ICU API. PyInstaller can accidentally pick up
 # an incompatible third-party icuuc.dll (for example, from Poppler) from

@@ -25,14 +25,14 @@
 
 ---
 
-## 🚀 최신 릴리즈 다운로드 (v1.0.7)
+## 🚀 최신 릴리즈 다운로드 (v1.0.8)
 
-공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.7](https://github.com/cybereun/AuraZip/releases/tag/v1.0.7)
+공식 릴리즈 페이지: [https://github.com/cybereun/AuraZip/releases/tag/v1.0.8](https://github.com/cybereun/AuraZip/releases/tag/v1.0.8)
 
 | 패키지 형태 | 파일명 | 용량 | 특징 및 권장 사용자 | 다운로드 |
 |---|---|---|---|:---:|
-| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.7.exe` | 릴리스 빌드에서 확인 | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.7/AuraZip_Setup_v1.0.7.exe) |
-| **무설치 포터블** | `AuraZip_Portable_v1.0.7.zip` | 릴리스 빌드에서 확인 | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.7/AuraZip_Portable_v1.0.7.zip) |
+| **표준 설치 프로그램** | `AuraZip_Setup_v1.0.8.exe` | 릴리스 빌드에서 확인 | • Windows 설치 마법사<br>• 바탕화면/시작메뉴 전용 아이콘 자동 등록<br>• **ZIP/7Z 기본 연결(더블 클릭 시 자동 실행 및 전용 아이콘 표시)**<br>• 원클릭 OTA 자동 업데이트 지원 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.8/AuraZip_Setup_v1.0.8.exe) |
+| **무설치 포터블** | `AuraZip_Portable_v1.0.8.zip` | 릴리스 빌드에서 확인 | • 설치 과정 및 관리자 권한 불필요<br>• USB 또는 원하는 폴더에 압축 풀고 즉시 실행 | [다운로드](https://github.com/cybereun/AuraZip/releases/download/v1.0.8/AuraZip_Portable_v1.0.8.zip) |
 
 ---
 
@@ -67,12 +67,12 @@
 ## 🛠️ 설치 및 사용 방법 (Installation & Usage)
 
 ### 방법 A. 표준 설치 프로그램 사용 (권장)
-1. [`AuraZip_Setup_v1.0.7.exe`](https://github.com/cybereun/AuraZip/releases/download/v1.0.7/AuraZip_Setup_v1.0.7.exe)를 다운로드합니다.
+1. [`AuraZip_Setup_v1.0.8.exe`](https://github.com/cybereun/AuraZip/releases/download/v1.0.8/AuraZip_Setup_v1.0.8.exe)를 다운로드합니다.
 2. 설치 마법사를 실행합니다. (기본값으로 바탕화면 바로가기 및 `.zip`/`.7z` 파일 연결이 체크되어 있습니다.)
 3. 설치 완료 후 바탕화면의 **AuraZip** 아이콘을 클릭하거나, 임의의 `.zip` 파일을 더블 클릭하여 바로 사용합니다.
 
 ### 방법 B. 무설치 포터블 버전 사용
-1. [`AuraZip_Portable_v1.0.7.zip`](https://github.com/cybereun/AuraZip/releases/download/v1.0.7/AuraZip_Portable_v1.0.7.zip)를 다운로드합니다.
+1. [`AuraZip_Portable_v1.0.8.zip`](https://github.com/cybereun/AuraZip/releases/download/v1.0.8/AuraZip_Portable_v1.0.8.zip)를 다운로드합니다.
 2. 원하는 위치(예: `C:\Tools\AuraZip` 또는 USB)에 압축을 풉니다.
 3. 폴더 내 `AuraZip.exe`를 더블 클릭하여 바로 실행합니다.
 
@@ -113,6 +113,11 @@ python main.py
 ---
 
 ## 📋 업데이트 내역 (Changelog)
+
+### [v1.0.8] - 2026-11-08
+- 도움말의 프로그램 정보에서 오픈소스 라이선스 고지를 확인할 수 있습니다.
+- GitHub 저장소와 Store 목록 설명에 제3자 라이선스 고지 링크를 추가했습니다.
+- 사용하지 않는 GPL 전용 Qt Virtual Keyboard 플러그인을 배포 빌드에서 제외했습니다.
 
 ### [v1.0.7] - 2026-11-08
 - JPEG 등 사진의 EXIF 방향 정보를 반영해 세로 사진 미리보기가 옆으로 눕지 않도록 수정했습니다.
@@ -182,4 +187,6 @@ python main.py
 ## 📄 라이선스 (License)
 
 Copyright © 2026 **@2026Lebi (cybereun)**. All rights reserved.  
-본 프로젝트는 [MIT 라이선스](LICENSE)에 따라 자유롭게 사용 및 배포할 수 있습니다.
+AuraZip 자체 코드는 [MIT 라이선스](LICENSE)로 배포합니다. 실행 파일에는 별도의 조건이 적용되는 오픈소스 구성요소도 포함되므로, 버전별 라이선스 전문과 구성요소 목록은 [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt)에서 확인하세요. 앱 안에서도 **도움말 → 프로그램 정보 → 오픈소스 라이선스**를 열 수 있습니다.
+
+The AuraZip application code is released under the [MIT License](LICENSE). The binary also contains open-source components with their own terms. See [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) for the component list and license texts used by the build.

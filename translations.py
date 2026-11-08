@@ -601,6 +601,9 @@ EN = {"'ZXPH0XZ' 아카이브의 모든 블록 및 CRC-32 검증을 무결하게
  '🛡️ 전문 보안 & 검사 도구': '🛡️ Professional security & scanning tools'}
 
 EN.update({
+    '오픈소스 라이선스': 'Open-source licenses',
+    '라이선스 고지 파일을 찾을 수 없습니다. 패키지 배포본에 포함된 licenses 폴더를 확인하세요.': 'The license notice file was not found. Check the licenses folder in the packaged app.',
+    '닫기': 'Close',
     '이 버전은 Microsoft Store에서 업데이트합니다. Microsoft Store의 라이브러리에서 업데이트를 확인하세요.': 'This version is updated through Microsoft Store. Check for updates in the Microsoft Store library.',
     '배포판 정보를 확인할 수 없어 자동 업데이트를 사용할 수 없습니다.': 'Updates are unavailable because the distribution channel could not be verified.',
     '언어 / Language': 'Language',
