@@ -24,8 +24,6 @@ PACKAGED_DISTRIBUTIONS = (
     "multivolumefile",
     "backports.zstd",
     "brotli",
-    "cffi",
-    "pycparser",
     "PyInstaller",
     "setuptools",
 )
