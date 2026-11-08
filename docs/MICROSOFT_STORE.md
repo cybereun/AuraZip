@@ -10,9 +10,11 @@
 
 ## Partner Center 제품 ID
 
-1. [새 등록 경로](https://storedeveloper.microsoft.com/)로 개발자 계정을 만든 후 앱 이름을 예약합니다.
+1. [Partner Center](https://partner.microsoft.com/dashboard)에서 **Apps & games → New product → MSIX or PWA app**을 선택해 MSIX 제품을 만들고 앱 이름을 예약합니다. 기존 EXE/MSI 초안의 제품 ID를 MSIX 앱에 재사용하지 않습니다.
 2. Partner Center의 앱 → **Product management → Product identity**에서 `Package/Identity/Name`, `Package/Identity/Publisher`, `Package/Properties/PublisherDisplayName`을 확인합니다. [공식 안내](https://learn.microsoft.com/en-us/windows/apps/publish/view-app-identity-details).
 3. `msix/identity.example.json`을 `msix/identity.local.json`으로 복사하고 세 항목을 **정확히** 기입합니다. Publisher는 `CN=...` 전체 문자열이며 대소문자를 보존합니다. Store ID, Publisher ID, 표시 이름과 혼동하지 마세요. 이 로컬 파일은 Git에서 제외됩니다.
+
+현재 Partner Center 제품에서 확인한 값은 이미 로컬 `msix/identity.local.json`에 입력되어 있습니다. Package Name은 `LebiCybereun.AuraZipArchiveManager`, Publisher는 `CN=464C8727-97B9-489F-B305-45CAF1BC4624`, PublisherDisplayName은 `Lebi_Cybereun`입니다. Store ID는 `9P6W20LHCH7M`입니다. 이 제품의 예약 표시 이름은 `AuraZip Archive Manager`이며 패키지 매니페스트의 DisplayName도 이 값과 정확히 일치해야 합니다. 이 제품이 EXE/MSI 형식으로 만들어진 초안이라면 이 ID를 MSIX 제품과 혼용하지 마세요. 이 값은 사용자가 제공한 MSIX 제품 ID 화면에서 가져왔습니다.
 
 ```powershell
 Copy-Item msix/identity.example.json msix/identity.local.json
@@ -41,9 +43,9 @@ python build_msix.py --build --test-identity
 python build_msix.py --build
 ```
 
-`build/msix-pyinstaller/dist/AuraZip`에 Store 전용 PyInstaller onedir가 만들어지고, `dist_msix/AuraZip_1.0.6.0_x64_TEST.msix` 또는 `_STORE.msix`가 생성됩니다. 기존 `dist/AuraZip`을 덮어쓰지 않습니다. `--build` 없이 `--dist <Store onedir 경로>`로 기존 결과물을 재사용할 수 있습니다. 패키저는 내장 배포판 메타데이터가 `store`가 아닌 경우 중단합니다. `--makeappx <절대 경로>`로 SDK 도구를 지정할 수 있습니다.
+`build/msix-pyinstaller/dist/AuraZip`에 Store 전용 PyInstaller onedir가 만들어지고, `dist_msix/AuraZip_1.0.7.0_x64_TEST.msix` 또는 `_STORE.msix`가 생성됩니다. Partner Center 실제 ID를 쓰면 Store `.msix`와 권장 업로드 컨테이너 `.msixupload`가 함께 생성됩니다. 업로드 컨테이너에는 단일 x64 `.msix`를 무압축으로 넣습니다. Microsoft는 `.msix` 직접 업로드도 허용하지만 `.msixupload` 사용을 권장합니다. [공식 안내](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/upload-app-packages). 기존 `dist/AuraZip`을 덮어쓰지 않습니다. `--build` 없이 `--dist <Store onedir 경로>`로 기존 결과물을 재사용할 수 있습니다. 패키저는 내장 배포판 메타데이터가 `store`가 아닌 경우 중단합니다. `--makeappx <절대 경로>`로 SDK 도구를 지정할 수 있습니다.
 
-기본 패키지 버전은 `version.py`의 `v1.0.6` → `1.0.6.0`입니다. `--version 1.0.6.0`으로 테스트할 수 있으나 실제 배포에서는 앱 버전과 일치시키고 이전 Store 패키지보다 높여야 합니다. 네 부분의 각 값은 0–65535, 첫 부분은 1 이상이고 네 번째는 Store용으로 0이어야 합니다. [공식 버전 규칙](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/package-version-numbering).
+기본 패키지 버전은 `version.py`의 `v1.0.7` → `1.0.7.0`입니다. `--version 1.0.7.0`으로 테스트할 수 있으나 실제 배포에서는 앱 버전과 일치시키고 이전 Store 패키지보다 높여야 합니다. 네 부분의 각 값은 0–65535, 첫 부분은 1 이상이고 네 번째는 Store용으로 0이어야 합니다. [공식 버전 규칙](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/package-version-numbering).
 
 MakeAppx 기본 매니페스트 검증을 우회하지 않으며 오류는 종료 코드와 로그로 표시합니다. 유효성 검사는 설치·인증 통과의 보증이 아닙니다. `runFullTrust`, 파일 형식 연결, 로고와 두 언어 리소스를 선언합니다. .zip/.7z는 등록만 하며 기본 앱을 강제로 바꾸지 않습니다. 사용자가 Windows의 기본 앱 설정에서 직접 선택해야 합니다.
 
@@ -60,7 +62,7 @@ $cert = New-SelfSignedCertificate -Type Custom -KeyUsage DigitalSignature `
 Export-Certificate -Cert $cert -FilePath "$env:TEMP\AuraZip-test-public.cer"
 Import-Certificate -FilePath "$env:TEMP\AuraZip-test-public.cer" -CertStoreLocation 'Cert:\LocalMachine\TrustedPeople'
 $sdk = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" | Sort-Object FullName -Descending | Select-Object -First 1
-$msix = (Resolve-Path 'dist_msix/AuraZip_1.0.6.0_x64_TEST.msix').Path
+$msix = (Resolve-Path 'dist_msix/AuraZip_1.0.7.0_x64_TEST.msix').Path
 & $sdk.FullName sign /fd SHA256 /sha1 $cert.Thumbprint $msix
 & $sdk.FullName verify /pa $msix
 Add-AppxPackage -Path $msix
@@ -72,8 +74,8 @@ Get-AppxPackage -Name 'AuraZip.DevelopmentTest' | Select-Object Name,PackageFull
 업데이트 검증에는 **동일한 테스트 Name, Publisher, 인증서**로 더 높은 버전의 두 번째 패키지가 필요합니다. 앱 프로세스를 종료한 뒤 빌드·서명·설치합니다. 이 테스트는 패키지 업그레이드 검증이며 실제 Store 업데이트 검증이 아닙니다.
 
 ```powershell
-python build_msix.py --test-identity --version 1.0.6.0
-$next = (Resolve-Path 'dist_msix/AuraZip_1.0.6.0_x64_TEST.msix').Path
+python build_msix.py --test-identity --version 1.0.7.0
+$next = (Resolve-Path 'dist_msix/AuraZip_1.0.7.0_x64_TEST.msix').Path
 & $sdk.FullName sign /fd SHA256 /sha1 $cert.Thumbprint $next
 Add-AppxPackage -Path $next
 Get-AppxPackage -Name 'AuraZip.DevelopmentTest' | Select-Object Version
@@ -93,8 +95,8 @@ Remove-Item -LiteralPath "$env:TEMP\AuraZip-test-public.cer"
 ## 첫 출시와 후속 업데이트
 
 1. 실제 Partner Center ID로 Store 패키지를 다시 빌드합니다. 로컬 테스트 ID나 테스트 인증서는 실제 제품 ID가 아닙니다.
-2. Partner Center에서 새 MSIX 앱 제출을 만들고 패키지와 한국어/영어 Store 설명, 스크린샷, 가격, 국가, 연령 등급, 개인정보 및 연락처 등 요구되는 정보를 입력합니다. 제출 전 Windows App Certification Kit과 실제 사용자 시나리오를 검사합니다. 패키지 업로드 및 심사 결과는 실제로 제출해야 알 수 있습니다. [제출 안내](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/create-app-submission?pivots=store-installer-msix).
-3. 게시된 이후에는 `version.py` 버전을 올리고 같은 제품 ID로 빌드하여 Partner Center에서 새 패키지를 제출합니다. Store가 배포한 앱은 Store 업데이트를 사용하며 GitHub EXE 업데이트가 비활성화됩니다.
+2. 첫 등록이라면 Partner Center에서 새 MSIX 앱 제출을 만들고 패키지와 한국어/영어 Store 설명, 스크린샷, 가격, 국가, 연령 등급, 개인정보 및 연락처 등 요구되는 정보를 입력합니다. Store 목록의 스크린샷은 각 언어별로 별도 업로드해야 합니다. 같은 이미지를 재사용할 수 있지만 각 목록에 캡션도 입력합니다. 데스크톱 스크린샷은 최소 1366×768 PNG여야 합니다. 제출 자료 초안은 `docs/store_submission/`에 있으며 개인정보 안내의 공개 URL이 필요하면 `docs/privacy.html`을 Pages에 게시합니다. 제출 전 Windows App Certification Kit과 실제 사용자 시나리오를 검사합니다. 패키지 업로드 및 심사 결과는 실제로 제출해야 알 수 있습니다. [이미지 안내](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/screenshots-and-images), [제출 안내](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/create-app-submission?pivots=store-installer-msix).
+3. 이미 게시된 앱의 업데이트는 Partner Center에서 같은 제품의 새 제출을 만든 뒤, 새 버전의 `.msixupload`를 기존 패키지 교체 위치에 올립니다. 설명·스크린샷 변경 사항을 확인하고 제출을 심사에 보냅니다. Store가 배포한 앱은 Store 업데이트를 사용하며 GitHub EXE 업데이트가 비활성화됩니다.
 4. 첫 게시 이후 자동화를 원한다면 [Microsoft Store Developer CLI](https://learn.microsoft.com/en-us/windows/apps/publish/msstore-dev-cli/overview)와 Partner Center에 연결된 Entra ID 및 제한된 권한을 별도로 설정하고, 버전·패키지 검증 및 승인 단계를 거쳐 제출하는 후속 워크플로를 설계합니다. 현재 자동 제출은 구현·활성화되어 있지 않습니다. 공식 문서상 최초 게시에는 Partner Center가 필요합니다.
 
 ## GitHub Actions

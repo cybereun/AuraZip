@@ -6,10 +6,25 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QMenu, QFrame, QProgressBar, QSplitter
 )
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QIcon, QPixmap, QAction, QColor
+from PySide6.QtCore import QByteArray, QBuffer, QIODevice, Qt, Signal
+from PySide6.QtGui import QIcon, QImage, QImageReader, QPixmap, QAction, QColor
 
 from archive_engine import ArchiveItem
+
+
+def read_preview_image(image_bytes: bytes) -> QImage:
+    """Decode an image and apply its EXIF orientation without changing source bytes."""
+    image_buffer = QBuffer()
+    image_buffer.setData(QByteArray(image_bytes))
+    if not image_buffer.open(QIODevice.ReadOnly):
+        return QImage()
+
+    image_reader = QImageReader(image_buffer)
+    image_reader.setAutoTransform(True)
+    image = image_reader.read()
+    del image_reader
+    image_buffer.close()
+    return image
 
 
 def format_bytes(size: int) -> str:
@@ -233,8 +248,10 @@ class ArchiveView(QWidget):
             self.clear_image_preview(tr('미리보기를 불러올 수 없습니다.'))
             return
 
-        pixmap = QPixmap()
-        if pixmap.loadFromData(img_bytes):
+        image = read_preview_image(img_bytes)
+        pixmap = QPixmap.fromImage(image) if not image.isNull() else QPixmap()
+
+        if not pixmap.isNull():
             w = pixmap.width()
             h = pixmap.height()
             box_w = max(220, self.img_container.width() - 16)

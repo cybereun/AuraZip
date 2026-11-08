@@ -9,6 +9,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import zipfile
 from string import Template
 from xml.sax.saxutils import escape
 
@@ -118,8 +119,26 @@ def main():
                 canvas.alpha_composite(resized, ((size - resized.width) // 2, (size - resized.height) // 2))
                 canvas.save(assets / name)
         print('Packaging using', makeappx, flush=True)
-        subprocess.run([str(makeappx), 'pack', '/o', '/d', str(stage), '/p', str(output)], check=True)
+        try:
+            result = subprocess.run([str(makeappx), 'pack', '/o', '/d', str(stage), '/p', str(output)],
+                                    check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        except subprocess.CalledProcessError as exc:
+            if exc.stdout:
+                print(exc.stdout, file=sys.stderr, end='')
+            raise
+        if result.stdout:
+            lines = result.stdout.splitlines()
+            print('\n'.join(lines[-5:]))
+    upload_package = None
+    if not args.test_identity:
+        # Partner Center accepts a plain .msix, but Microsoft recommends an
+        # .msixupload container. A symbol file is optional for desktop apps.
+        upload_package = output.with_suffix('.msixupload')
+        with zipfile.ZipFile(upload_package, 'w', compression=zipfile.ZIP_STORED, allowZip64=True) as bundle:
+            bundle.write(output, arcname=output.name, compress_type=zipfile.ZIP_STORED)
     print(f"{'TEST ONLY - NOT FOR STORE' if args.test_identity else 'Partner Center identity'}: {output}")
+    if upload_package:
+        print(f'Partner Center upload package: {upload_package}')
     print('Package is unsigned; see docs/MICROSOFT_STORE.md before testing or submitting.')
 
 

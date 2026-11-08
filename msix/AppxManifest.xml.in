@@ -7,7 +7,7 @@
          IgnorableNamespaces="uap uap3 desktop2 rescap">
   <Identity Name="${identity_name}" Publisher="${publisher}" Version="${version}" ProcessorArchitecture="x64" />
   <Properties>
-    <DisplayName>AuraZip</DisplayName>
+    <DisplayName>AuraZip Archive Manager</DisplayName>
     <PublisherDisplayName>${publisher_display_name}</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>Windows archive manager</Description>
@@ -21,7 +21,7 @@
   </Resources>
   <Applications>
     <Application Id="AuraZip" Executable="AuraZip.exe" EntryPoint="Windows.FullTrustApplication">
-      <uap:VisualElements DisplayName="AuraZip" Description="Windows archive manager"
+      <uap:VisualElements DisplayName="AuraZip Archive Manager" Description="Windows archive manager"
           BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png"
           Square44x44Logo="Assets\Square44x44Logo.png" />
       <Extensions>
